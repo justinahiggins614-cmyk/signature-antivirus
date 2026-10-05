@@ -7,6 +7,8 @@ Called by code/build_pages.py so bundles stay fresh; safe to run standalone.
 import os
 import zipfile
 
+FIXED_DATE = (2026, 10, 5, 0, 0, 0)  # deterministic zips: unchanged tools = byte-identical bundles
+
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOLS = os.path.join(REPO, "tools")
 OUT = os.path.join(REPO, "downloads")
@@ -67,8 +69,13 @@ def main():
             for fn in FILES:
                 src = os.path.join(TOOLS, fn)
                 if os.path.exists(src):
-                    z.write(src, fn)
-            z.writestr("README.txt", README.format(
+                    zi = zipfile.ZipInfo(fn, date_time=FIXED_DATE)
+                    zi.external_attr = 0o644 << 16
+                    with open(src, "rb") as f:
+                        z.writestr(zi, f.read())
+            zi = zipfile.ZipInfo("README.txt", date_time=FIXED_DATE)
+            zi.external_attr = 0o644 << 16
+            z.writestr(zi, README.format(
                 name=bundle.replace(".zip", "").replace("-", " ").title(),
                 desc=desc, edition=edition,
                 ai_line=AI_LINE.format(ai=ai_file) if ai_file else ""))
