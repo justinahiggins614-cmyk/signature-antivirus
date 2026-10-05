@@ -1,0 +1,27 @@
+<style>
+/* ============ FIRST-visit WELCOME overlay (2026-10-04 standard: centered modal, no scroll, no spotlight) ============ */
+#jahWelcome,#jahGuide,#jahGuideBtn{--amber:#d4a017;--amber2:#d4a0172}
+#jahGuideBtn{position:fixed;top:14px;right:14px;z-index:99900;min-width:48px;min-height:48px;border-radius:24px;border:1px solid var(--amber,#f5a623);background:var(--panel,#161d27);color:var(--amber2,#ffcf6e);font-weight:700;font-size:18px;padding:10px 16px;cursor:pointer}
+#jahGuideBtn:hover{background:var(--amber,#f5a623);color:#0a0e14}
+#jahWelcome{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.75)}
+#jahWelcome.show{display:flex}
+#jahWelcomeCard{background:var(--panel,#161d27);border:2px solid var(--amber,#f5a623);border-radius:14px;padding:22px 20px;max-width:540px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.6);color:var(--txt,#e8edf4)}
+#jahWelcomeCard h2{margin:0 0 4px;color:var(--amber2,#ffcf6e);font-size:20px}
+#jahWelcomeCard .wsub{margin:4px 0 0;color:var(--dim,#9aa7ba);font-size:14px}
+#jahWelcomeCard ol{margin:10px 0 0;padding-left:22px;font-size:14px;line-height:1.55}
+#jahWelcomeCard ol li{margin:8px 0}
+#jahWelcomeCard ol li b{color:var(--amber2,#ffcf6e)}
+#jahWelcomeCard .wbtnrow{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+#jahGuide .btn,#jahWelcome .btn{min-height:48px;min-width:48px;font-size:15px;padding:12px 22px;border-radius:10px;border:1px solid var(--amber,#f5a623);background:transparent;color:var(--amber2,#ffcf6e);cursor:pointer;font-family:inherit}
+#jahWelcomeOk{font-weight:700;background:var(--amber,#f5a623)!important;color:#0a0e14!important;border:none!important}
+#jahGuide{position:fixed;inset:0;z-index:99900;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.7)}
+#jahGuide.show{display:flex}
+#jahGuideCard{background:var(--panel,#161d27);border:1px solid var(--amber,#f5a623);border-radius:14px;max-width:680px;width:100%;max-height:86vh;overflow:auto;padding:20px 22px;color:var(--txt,#e8edf4)}
+#jahGuideCard h2{margin-top:0;color:var(--amber2,#ffcf6e)}
+#jahGuideCard .gfeat{margin:0 0 14px;padding:10px 12px;background:#10151d;border:1px solid var(--line,#2a3444);border-radius:10px}
+#jahGuideCard .gfeat b{color:var(--amber2,#ffcf6e)}
+#jahGuideCard .gfeat p{margin:4px 0 0;font-size:14px;line-height:1.5;color:var(--txt,#e8edf4)}
+#jahGuideCard .gfeat p b{color:var(--amber2,#ffcf6e)}
+#jahGuideCard .gfeat ul{margin:4px 0;padding-left:20px}
+#jahGuideCloseRow{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+</style>

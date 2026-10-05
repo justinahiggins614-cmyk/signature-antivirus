@@ -8,7 +8,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
 BASE = "https://justinahiggins614-cmyk.github.io/signature-antivirus"
 
-NAV = open("/tmp/nav32_base.html").read().strip()
+_NAV_TMP = "/tmp/nav32_base.html"
+_NAV_REPO = os.path.join(HERE, "nav32_base.html")
+NAV = open(_NAV_TMP if os.path.exists(_NAV_TMP) else _NAV_REPO).read().strip()
 NAV = NAV.replace("</div>",
                   '<span class="here">32 The Signature Antivirus &mdash; YOU ARE HERE</span></div>')
 
@@ -85,7 +87,9 @@ var PROFILES={
 };
 """
 
-WELCOME_CSS = open("/tmp/welcome_block.html").read()
+_WELCOME_TMP = "/tmp/welcome_block.html"
+_WELCOME_REPO = os.path.join(HERE, "welcome_block.html")
+WELCOME_CSS = open(_WELCOME_TMP if os.path.exists(_WELCOME_TMP) else _WELCOME_REPO).read()
 WELCOME_CSS = WELCOME_CSS[WELCOME_CSS.find("<style>"):WELCOME_CSS.find("</style>") + 8]
 
 
