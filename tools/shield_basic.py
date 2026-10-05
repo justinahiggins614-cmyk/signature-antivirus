@@ -14,7 +14,8 @@ What it really does:
     installs anything silently.
 
 Usage:
-  python3 shield_basic.py scan <folder> [--quarantine]
+  python3 shield_basic.py scan --type quick|full|custom|usb|startup|memory [--path P] [--clean] [--yes]
+  python3 shield_basic.py scan <folder> [--quarantine]   (classic folder scan)
   python3 shield_basic.py sig-add <sha256> <label>
   python3 shield_basic.py quarantine-list
   python3 shield_basic.py restore <quarantine-id>
@@ -32,8 +33,25 @@ import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SIG_DB = os.path.join(HERE, "signatures.json")
-QDIR = os.path.join(os.getcwd(), "shield_quarantine")
-QMANIFEST = os.path.join(QDIR, "manifest.json")
+
+def _qdir():
+    """Quarantine dir, resolved against the CURRENT working directory.
+
+    The journal's rewind does os.chdir(home) before calling restore(),
+    so this must be lazy — never bound at import time. An explicit
+    module-global override (used by self-tests) still wins."""
+    return globals().get("QDIR") or os.path.join(os.getcwd(), "shield_quarantine")
+
+def _qmanifest():
+    return globals().get("QMANIFEST") or os.path.join(_qdir(), "manifest.json")
+
+def __getattr__(name):
+    # PEP 562: keep QDIR/QMANIFEST readable as module attributes
+    if name == "QDIR":
+        return _qdir()
+    if name == "QMANIFEST":
+        return _qmanifest()
+    raise AttributeError("module %r has no attribute %r" % (__name__, name))
 
 OS = platform.system()  # Windows | Darwin | Linux | ...
 OS_LABEL = {"Windows": "Windows", "Darwin": "macOS", "Linux": "Linux"}.get(OS, OS)
@@ -72,7 +90,7 @@ def scan_dir(root, quarantine=False):
     findings = []
     scanned = 0
     for dirpath, _dirs, files in os.walk(root):
-        if os.path.abspath(dirpath).startswith(os.path.abspath(QDIR)):
+        if os.path.abspath(dirpath).startswith(os.path.abspath(_qdir())):
             continue
         for name in files:
             path = os.path.join(dirpath, name)
@@ -99,28 +117,35 @@ def scan_dir(root, quarantine=False):
 
 
 def quarantine_file(path, reasons):
-    os.makedirs(QDIR, exist_ok=True)
+    os.makedirs(_qdir(), exist_ok=True)
     qid = "q%08d" % (int(time.time() * 100) % 100000000)
-    dest = os.path.join(QDIR, qid + "_" + os.path.basename(path))
+    # guarantee uniqueness: two quarantines in the same centisecond must not collide
+    taken = {e.get("id") for e in quarantine_list()}
+    n = 0
+    base = qid
+    while qid in taken:
+        n += 1
+        qid = "%s_%d" % (base, n)
+    dest = os.path.join(_qdir(), qid + "_" + os.path.basename(path))
     shutil.move(path, dest)
     manifest = []
-    if os.path.exists(QMANIFEST):
-        with open(QMANIFEST, "r", encoding="utf-8") as f:
+    if os.path.exists(_qmanifest()):
+        with open(_qmanifest(), "r", encoding="utf-8") as f:
             try:
                 manifest = json.load(f)
             except ValueError:
                 manifest = []
     manifest.append({"id": qid, "original": path, "quarantined": dest,
                      "reasons": reasons, "time": time.strftime("%Y-%m-%d %H:%M:%S")})
-    with open(QMANIFEST, "w", encoding="utf-8") as f:
+    with open(_qmanifest(), "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)
     return qid
 
 
 def quarantine_list():
-    if not os.path.exists(QMANIFEST):
+    if not os.path.exists(_qmanifest()):
         return []
-    with open(QMANIFEST, "r", encoding="utf-8") as f:
+    with open(_qmanifest(), "r", encoding="utf-8") as f:
         try:
             return json.load(f)
         except ValueError:
@@ -134,7 +159,7 @@ def restore(qid):
             os.makedirs(os.path.dirname(entry["original"]), exist_ok=True)
             shutil.move(entry["quarantined"], entry["original"])
             manifest.remove(entry)
-            with open(QMANIFEST, "w", encoding="utf-8") as f:
+            with open(_qmanifest(), "w", encoding="utf-8") as f:
                 json.dump(manifest, f, indent=2)
             return entry["original"]
     return None
@@ -201,6 +226,36 @@ def main(argv):
         print(json.dumps(detect_os(), indent=2))
         return 0
     if cmd == "scan":
+        # New style: scan --type quick|full|custom|usb|startup|memory [--path P] [--clean] [--yes]
+        # Old style (still works): scan <folder> [--quarantine]
+        if len(argv) > 1 and argv[1].startswith("--"):
+            from shield_scan import run_scan, print_result, clean_findings, SCAN_TYPES
+            args = argv[1:]
+            stype, paths, clean, yes = "quick", [], False, False
+            i = 0
+            while i < len(args):
+                a = args[i]
+                if a == "--type" and i + 1 < len(args):
+                    stype = args[i + 1]; i += 2
+                elif a == "--path" and i + 1 < len(args):
+                    paths.append(args[i + 1]); i += 2
+                elif a == "--clean":
+                    clean = True; i += 1
+                elif a in ("--yes", "-y"):
+                    yes = True; i += 1
+                else:
+                    i += 1
+            if stype not in SCAN_TYPES:
+                print("unknown scan type '%s' — choose: %s" % (stype, ", ".join(SCAN_TYPES)))
+                return 2
+            print("OS profile: %s" % OS_LABEL)
+            res = run_scan(stype, paths=paths or None)
+            print_result(res)
+            if clean and res.get("findings"):
+                n = clean_findings(res, quarantine_file, journal_home=os.getcwd(), assume_yes=yes)
+                print("cleaned %d item(s) — restore anytime with: python3 %s restore <id>"
+                      % (n, os.path.basename(__file__)))
+            return 0
         root = argv[1] if len(argv) > 1 else "."
         quar = "--quarantine" in argv
         res = scan_dir(root, quarantine=quar)

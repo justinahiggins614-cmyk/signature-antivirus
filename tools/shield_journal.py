@@ -60,6 +60,8 @@ def _describe(e):
     d = e.get("detail") or {}
     if a == "quarantine":
         return "quarantined %s" % d.get("path", "a file")
+    if a == "sigdb_update":
+        return "updated signature database v%s → v%s" % (d.get("from", "?"), d.get("to", "?"))
     if a == "honeypot_plant":
         return "planted %d ransomware tripwires" % len(d.get("files", []))
     if a == "scheduler_install":
@@ -86,6 +88,13 @@ def _undo_entry(home, e):
             import shield_basic as basic
             dest = basic.restore(inv["qid"])
             return (True, "restored %s" % dest) if dest else (False, "quarantine record not found")
+        if op == "restore_sigdb":
+            import shutil
+            backup, target = inv.get("backup"), inv.get("target")
+            if backup and target and os.path.exists(backup):
+                shutil.copy2(backup, target)
+                return True, "signature database rolled back to the previous version"
+            return False, "backup copy not found"
         if op == "remove_files":
             gone = 0
             for p in inv.get("paths", []):

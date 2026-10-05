@@ -48,6 +48,10 @@ try:
     import install as inst
 except Exception:
     inst = None
+try:
+    import shield_update as updater
+except Exception:
+    updater = None
 
 EICAR_HASH = "275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a6c4538aabf651fd0f"
 
@@ -64,8 +68,43 @@ class ShieldAI:
         self.edition_name = ("Signature Shield AI Defense-Grade"
                              if edition == "defense" else "Signature Shield AI")
         self.home = home or os.path.join(os.path.expanduser("~"), ".signature-antivirus")
-        self.pending = None  # pending proposal awaiting yes/no
         self.turns = 0
+
+    # Pending proposals (yes/no confirmations) are persisted to disk so a
+    # "yes" works even when each question is a separate command run.
+    # Proposals expire after one hour.
+    @property
+    def pending(self):
+        p = os.path.join(self.home, "pending.json")
+        if not os.path.exists(p):
+            return None
+        try:
+            d = json.load(open(p, encoding="utf-8"))
+        except Exception:
+            return None
+        if time.time() - d.get("ts", 0) > 3600:
+            try:
+                os.remove(p)
+            except OSError:
+                pass
+            return None
+        return d.get("proposal")
+
+    @pending.setter
+    def pending(self, value):
+        p = os.path.join(self.home, "pending.json")
+        if value is None:
+            try:
+                os.remove(p)
+            except OSError:
+                pass
+            return
+        try:
+            os.makedirs(self.home, exist_ok=True)
+            json.dump({"ts": time.time(), "proposal": value},
+                      open(p, "w", encoding="utf-8"))
+        except (OSError, TypeError, ValueError):
+            pass
 
     # ---------------- live state ----------------
     def state(self):
@@ -196,8 +235,15 @@ class ShieldAI:
             return self._turn_on()
         if "uninstall" in t or "remove shield" in t or "remove the antivirus" in t:
             return self._propose_uninstall()
-        if t.startswith("scan ") or t.startswith("check ") and "protection" not in t \
-                or "scan my" in t or "scan the" in t or t == "scan":
+        if any(k in t for k in ("check for update", "check for new", "signature update",
+                                "update the signatures", "update signatures",
+                                "is my protection current", "protection current",
+                                "update the database", "threat database",
+                                "new signature data")):
+            return self._update_intent(t)
+        if ("scan" in t and not any(k in t for k in ("last scan", "what did you find",
+                "find anything", "results"))) or \
+                (t.startswith("check ") and "protection" not in t):
             return self._scan_request(t, text)
         if any(k in t for k in ("what did you find", "find anything", "results", "last scan")):
             return self._last_findings()
@@ -366,36 +412,71 @@ class ShieldAI:
 
     def _scan_request(self, t, original):
         import re
+        try:
+            from shield_scan import run_scan, SCAN_DESCRIPTIONS
+        except ImportError:
+            run_scan = None
+        # detect which of the six Signature scan types the user wants
+        stype, paths = "quick", None
+        if re.search(r"\b(full|deep|complete|everything|whole)\b", t):
+            stype = "full"
+        elif re.search(r"\b(usb|removable|thumb|stick|external drive|sd card)\b", t):
+            stype = "usb"
+        elif re.search(r"\b(startup|boot|auto[\s-]?start|login items)\b", t):
+            stype = "startup"
+        elif re.search(r"\b(memory|process|ram|running)\b", t):
+            stype = "memory"
+        elif re.search(r"\bcustom\b", t):
+            stype = "custom"
         m = re.search(r'(?:scan|check)\s+(?:my\s+)?(.+)$', original, re.I)
         target = (m.group(1).strip() if m else "").strip(" '\"")
-        if not target or target in ("something", "it", "that"):
-            target = os.path.expanduser("~/Downloads")
-        target = os.path.expanduser(target)
-        if not os.path.isdir(target):
-            return ("I can't find \"%s\" — check the path and try again." % target)
-        if basic is None:
-            return "The scanner module isn't in this package — reinstall to fix that."
+        type_words = ("quick", "full", "deep", "complete", "usb", "removable",
+                      "startup", "boot", "memory", "process", "custom", "scan",
+                      "check", "my", "pc", "computer", "system", "please")
+        if target and stype == "quick" and not any(w in target.lower() for w in type_words):
+            # user named an actual folder -> custom scan of it
+            stype, paths = "custom", [os.path.expanduser(target)]
+        elif stype == "custom" and target and not any(w in target.lower() for w in type_words):
+            paths = [os.path.expanduser(target)]
+        if run_scan is None:
+            return "The scan engine isn't in this package — reinstall to fix that."
+        if stype == "custom" and not paths:
+            return ("Which folder should I scan? Give me a path, like \"custom scan "
+                    + os.path.expanduser("~") + "\".")
         old = os.getcwd()
         try:
+            os.makedirs(self.home, exist_ok=True)
             os.chdir(self.home)
-            res = basic.scan_dir(target, quarantine=False)
+            res = run_scan(stype, paths=paths)
         finally:
             os.chdir(old)
-        findings = res.get("findings", []) if isinstance(res, dict) else res
+        findings = res.get("findings", [])
         n = len(findings)
-        self._log_scan(target, res)
+        self._log_scan(stype + " scan", res)
+        say_type = {"quick": "quick", "full": "full", "custom": "custom",
+                    "usb": "USB", "startup": "startup", "memory": "memory"}[stype]
+        if res.get("error"):
+            return "I couldn't run that scan: %s" % res["error"]
         if n == 0:
-            scanned = res.get("scanned", "?") if isinstance(res, dict) else "?"
-            return ("Done — I read %s files in %s and found nothing suspicious. Clean."
-                    % (scanned, target))
+            scanned = res.get("scanned", "?")
+            extra = ""
+            for note in res.get("notes", []):
+                extra += " " + note
+            return ("Done — my %s scan read %s files and found nothing suspicious. Clean.%s"
+                    % (say_type, scanned, extra))
         first = findings[0]
-        fname = first.get("path", "a file") if isinstance(first, dict) else str(first)
-        reason = (first.get("reasons") or first.get("reason") or ["flagged"])[0] \
-            if isinstance(first, dict) else "flagged"
-        return ("I found %d suspicious file(s) in %s. The first is \"%s\" — %s. "
+        fname = os.path.basename(str(first.get("path", "a file")))
+        reason = (first.get("reasons") or ["flagged"])[0]
+        pid_note = ""
+        if first.get("pids"):
+            pid_note = " It's running right now (process %s) — I'll need to stop it before cleaning." % (
+                ", ".join(map(str, first["pids"])))
+        self.pending = {"action": "quarantine_list", "findings": findings}
+        return ("My %s scan found %d suspicious file(s) out of %s checked. "
+                "The first is \"%s\" — %s.%s "
                 "I haven't touched anything. Want me to quarantine %s? (yes/no)"
-                % (n, target, os.path.basename(str(fname)), self._plain_reason(reason),
-                   "them" if n > 1 else "it"))
+                % (say_type, n, res.get("scanned", "?"), fname,
+                   self._plain_reason(reason), pid_note, "them" if n > 1 else "it"))
 
     def _plain_reason(self, reason):
         r = str(reason).lower()
@@ -408,8 +489,67 @@ class ShieldAI:
             return "its fingerprint matches a known threat in the database"
         return str(reason)
 
+    def _update_intent(self, t):
+        """The internal AI regulates updates: check the canonical signature
+        database, narrate the result, and propose (never force) the apply."""
+        if updater is None:
+            return "The updater module isn't in this package — reinstall to fix that."
+        status, msg, remote = updater.check()
+        if status == "error":
+            return ("I tried to check for new signature data, but couldn't reach it — "
+                    "%s I didn't change anything." % msg)
+        if status == "current":
+            if os.path.exists(os.path.join(self.home, "update_schedule.json")):
+                return (msg + " I'm already checking for new data on my own every week.")
+            self.pending = {"action": "schedule_updates"}
+            return (msg + " Want me to check for new signature data on my own every "
+                    "week and install it automatically? (yes/no)")
+        self.pending = {"action": "sigdb_update", "remote": remote}
+        return (msg + " I haven't installed anything — say the word and I'll apply it. "
+                "(yes/no)")
+
     def _do_approved(self, act):
         a = act["action"]
+        if a == "sigdb_update":
+            if updater is None:
+                return "The updater module isn't in this package — reinstall to fix that."
+            ok, msg = updater.apply_update(act.get("remote"), journal_home=self.home,
+                                           assume_yes=True)
+            if not ok:
+                return msg
+            if os.path.exists(os.path.join(self.home, "update_schedule.json")):
+                return msg
+            self.pending = {"action": "schedule_updates"}
+            return (msg + " Want me to check for new signature data on my own every "
+                    "week from now on, so you never have to think about it? (yes/no)")
+        if a == "schedule_updates":
+            if updater is None:
+                return "The updater module isn't in this package — reinstall to fix that."
+            kind, desc, artifact, do_install = updater.update_scheduler_artifacts(self.home)
+            try:
+                r = do_install()
+                rc = r.returncode if r is not None else 0
+            except Exception as e:
+                rc, r = 1, None
+                artifact_err = str(e)
+            else:
+                artifact_err = ""
+            if rc == 0:
+                with open(os.path.join(self.home, "update_schedule.json"), "w",
+                          encoding="utf-8") as f:
+                    json.dump({"kind": kind, "installed": time.strftime("%Y-%m-%d %H:%M:%S")}, f)
+                if journal:
+                    journal.record(self.home, "ai", "scheduler_install",
+                                   {"kind": kind, "what": "weekly signature updates"},
+                                   {"op": "remove_scheduler"})
+                return ("Done — %s. New signature data installs itself with an undo "
+                        "in the journal. Say \"undo\" any time to take the schedule "
+                        "back off." % desc)
+            detail = artifact
+            why = (" (%s)" % artifact_err) if artifact_err else ""
+            return ("The system scheduler reported an issue%s — nothing was "
+                    "installed. You can set it up by hand any time; the exact entry is: "
+                    "%s" % (why, detail))
         if a == "quarantine_path":
             path = act["path"]
             if basic is None:
@@ -436,6 +576,41 @@ class ShieldAI:
                     os.chdir(old)
                 except Exception:
                     pass
+        if a == "quarantine_list":
+            findings = act.get("findings", [])
+            if basic is None:
+                return "The scanner module isn't in this package — reinstall to fix that."
+            done, gone = [], []
+            old = os.getcwd()
+            try:
+                os.chdir(self.home)
+                for f in findings:
+                    path = f.get("path", "")
+                    if not path or not os.path.isfile(path):
+                        gone.append(os.path.basename(path) or "?")
+                        continue
+                    try:
+                        with open(path, "rb") as fh:
+                            digest = hashlib.sha256(fh.read()).hexdigest()
+                        qid = basic.quarantine_file(path, f.get("reasons", ["AI quarantine at user request"]))
+                        if journal:
+                            journal.record(self.home, "ai", "quarantine",
+                                           {"path": path, "sha256": digest, "qid": qid},
+                                           {"op": "restore_quarantine", "qid": qid})
+                        done.append((os.path.basename(path), qid))
+                    except Exception as e:
+                        gone.append("%s (%s)" % (os.path.basename(path), e))
+            finally:
+                try:
+                    os.chdir(old)
+                except Exception:
+                    pass
+            msg = ("Done — quarantined %d file(s): %s. Nothing deleted, just moved aside; "
+                   "say \"undo\" any time and I put them back."
+                   % (len(done), ", ".join("%s (%s)" % d for d in done)))
+            if gone:
+                msg += " Skipped (already gone): %s." % ", ".join(gone)
+            return msg
         if a == "quarantine":
             target = act["target"]
             return ("To quarantine a real file I need its exact path — run me with the file in "

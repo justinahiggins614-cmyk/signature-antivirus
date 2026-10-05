@@ -1,4 +1,9 @@
 {
+  "meta": {
+    "version": "2026.10.05.1",
+    "updated": "2026-10-05",
+    "source": "Signature Antivirus threat research \u2014 original Signature signatures, no vendor data"
+  },
   "sha256": {
     "275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f": "EICAR-STANDARD-ANTIVIRUS-TEST-FILE (industry test marker)"
   },

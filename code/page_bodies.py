@@ -13,7 +13,7 @@ real tools, run them on your own machine. No accounts. No cloud. No subscription
 <div class="stats" role="status">
 <div class="stat"><b id="stAddons">""" + str(n) + """</b><span>virus solutions archived</span></div>
 <div class="stat"><b>1,000,000</b><span>march goal</span></div>
-<div class="stat"><b>4</b><span>protection downloads</span></div>
+<div class="stat"><b>9</b><span>protection downloads</span></div>
 <div class="stat"><b>100% free</b><span>free forever, no accounts</span></div>
 </div>
 <div class="mission"><b>Our mission statement.</b> Viruses do not care what system you run, and neither do we.
@@ -42,12 +42,32 @@ families plus heuristic defense profiles, marching to one million. Search it, or
 harden your whole system at once.</p>
 <a class="btn" href="addons.html">Browse the archive</a></div>
 </div>
+<div class="card flagship" id="uniRec"><h3>&#x1F6E1;&#xFE0F; The universal recommendation</h3>
+<p class="flagtag">ONE CLICK &middot; BEST PROTECTION</p>
+<p id="recOs">Detecting your system&hellip;</p>
+<p><b>Signature Shield AI Defense-Grade</b> — the flagship. Shield, the antivirus AI, is the
+engine: it runs every Signature scan type, explains findings in plain language, resolves with
+your confirmation, and <b>regulates its own updates</b> — checking for new signature data on
+schedule and applying it, always with an undo.</p>
+<p class="note" id="sigStatus">Checking the signature database&hellip;</p>
+<a class="btn" href="downloads/signature-shield-ai.zip" download>&#x2B07; Download the recommended Shield</a>
+<p class="note">Built on well-known antivirus techniques &mdash; signature matching, heuristic
+analysis, quarantine, behavioral monitoring &mdash; as an original Signature implementation.
+No vendor code, no trademarks, no third-party engines.</p>
+<p class="note">Want it your way? <a href="antivirus.html">Choose your edition</a> &middot;
+<a href="scan.html">Pick your scan</a> &middot; <a href="antivirus.html#parts">Download in parts</a></p>
+</div>
 <p class="note"><b>Honest scope.</b> These are real, working tools with real capabilities, described exactly as
 they behave. They do not replace your operating system's built-in protections — on macOS they coexist with
 Gatekeeper and XProtect; on Windows they complement Windows Security. The starter signature database ships the
 industry-standard EICAR test marker so you can verify detection yourself on day one.</p>
 <script>""" + OS_JS + """
 (function(){var os=detectOS(),p=PROFILES[os]||PROFILES['Unknown'];
+document.getElementById('recOs').innerHTML=p.dl?'<b>For your '+os+' system:</b> one download — the installer detects your OS and applies the matching protection profile automatically.':'<b>You are on '+os+':</b> the tools run on PCs (Windows, macOS, Linux) — grab the download for your computer.';
+fetch('tools/signatures.json').then(function(r){return r.json();}).then(function(j){
+ var m=j.meta||{};
+ document.getElementById('sigStatus').innerHTML='<b>Protection current as of '+(m.updated||'?')+'</b> &middot; signature database v'+(m.version||'?')+' &middot; updated as new data arrives.';}).catch(function(){
+ document.getElementById('sigStatus').textContent='Signature database status unavailable offline — the download carries the latest.';});
 document.getElementById('osBanner').innerHTML='<b>Detected system: '+os+'.</b> '+p.note+
 ' <a href="antivirus.html" style="color:#7ec8ff">Your protection profile is ready &rarr;</a>';})();</script>
 """
@@ -64,7 +84,10 @@ def antivirus_body():
 <p>No accounts. No cloud. No subscriptions. Choose a shield, download it, run it on your PC.
 One universal download detects your system automatically and applies the matching profile.</p>
 <p class="freeforever"><b>Free forever.</b> No accounts, no payments, no upsells, no trial traps —
-every tool is yours. If anything ever goes wrong, uninstalling removes everything cleanly.</p></div>
+every tool is yours. If anything ever goes wrong, uninstalling removes everything cleanly.
+Built on well-known antivirus techniques &mdash; signature matching, heuristic analysis,
+quarantine, behavioral monitoring &mdash; as an original Signature implementation: no vendor
+code, no trademarks, no third-party engines.</p></div>
 <div class="osbanner" id="osBanner2">Detecting your system&hellip;</div>
 <h2>Get running in 3 steps</h2>
 <div class="cards">
@@ -102,6 +125,30 @@ USB guard, ransomware tripwires, boot auditor, network monitor. No AI — just t
 in the threat database, the fail-safe undo journal, the <b>off switch</b>
 (<code>install.py --off</code> / <code>--on</code>), and the clean <b>uninstaller</b>
 (<code>install.py --uninstall</code>) that proves zero residue.</p>
+<h2 id="parts">Download in parts</h2>
+<p>Prefer it modular? Each part downloads separately — the installer assembles ("compiles")
+the parts into the working tool on <b>your</b> PC. Nothing runs anywhere else.</p>
+<div class="cards">
+<div class="card"><h3>1 &middot; Engine</h3><p>The scanner core, quarantine with one-command
+restore, the fail-safe action journal, the status checker.</p>
+<a class="btn sec" href="downloads/signature-shield-part-engine.zip" download>&#x2B07; Part 1: Engine</a></div>
+<div class="card"><h3>2 &middot; Signatures</h3><p>The threat fingerprint database. Refresh this
+part any time — or let Shield update it for you automatically.</p>
+<a class="btn sec" href="downloads/signature-shield-part-signatures.zip" download>&#x2B07; Part 2: Signatures</a></div>
+<div class="card"><h3>3 &middot; Shield AI</h3><p>The conversational antivirus AI (Basic +
+Defense-Grade) — runs scans, explains findings, regulates updates.</p>
+<a class="btn sec" href="downloads/signature-shield-part-ai.zip" download>&#x2B07; Part 3: AI</a></div>
+<div class="card"><h3>4 &middot; Scan modules</h3><p>All six Signature scan types (quick, full,
+custom, USB, startup, memory) plus defense heuristics and the monitor.</p>
+<a class="btn sec" href="downloads/signature-shield-part-scans.zip" download>&#x2B07; Part 4: Scans</a></div>
+<div class="card"><h3>5 &middot; Installer</h3><p>Assembles the parts into the working tool and
+keeps the signature database current.</p>
+<a class="btn sec" href="downloads/signature-shield-part-installer.zip" download>&#x2B07; Part 5: Installer</a></div>
+</div>
+<p><b>Assemble:</b> download all five parts into one folder, unzip the installer part, then run<br>
+<code>python3 install.py --assemble &lt;the-folder-with-the-parts&gt;</code> — the installer
+validates every part, compiles the modules, and finishes with <b>PROTECTION: RUNNING</b>.
+Missing a part? It tells you exactly which one. The full bundles above remain the one-click option.</p>
 <h2>Protection profiles — honest, per system</h2>
 <table class="prof"><tr><th>Your system</th><th>What you get</th><th>Why</th></tr>
 <tr><td><b>Windows</b></td><td>Full suite: signature + heuristic scan, netsh firewall rules, USB autorun guard,
@@ -257,3 +304,205 @@ fetch('data/addons/index.json').then(function(r){return r.json();}).then(functio
 AZ_WELCOME = ("<li><b>Search the cures.</b> Every virus gets its own solution add-on &mdash; documented families and heuristic profiles.</li>"
  "<li><b>Apply all.</b> One button prepares the full protection set for your detected system.</li>"
  "<li><b>Ask the AI.</b> Describe the threat in plain words; it finds the matching solutions.</li>")
+
+
+def scan_body():
+    return """
+<div class="hero"><h2>🔎 Free Scan</h2>
+<p>Every Signature scan type, free. Drop files here to check them right now, or download the
+tools and scan your whole PC — quick, full, custom, USB, startup, or memory.</p>
+<p class="freeforever"><b>Free forever.</b> No accounts, no payments, no upsells, no trial traps.
+The on-site scan never uploads your files — everything is checked inside your own browser.</p></div>
+<div class="osbanner" id="scanOs">Detecting your system&hellip;</div>
+
+<h2>Part 1 — Pick your scan</h2>
+<p class="note">Six Signature scan types. The <b>on-site</b> scan checks files you drop below.
+The <b>download</b> scans your actual PC — a website cannot do that part, and any site that
+claims otherwise is lying to you.</p>
+<div class="cards">
+<div class="card"><h3>⚡ Signature Quick Scan</h3><p>Downloads, Desktop, Documents, temp folders —
+the places infections land first. The everyday check. <b>On-site:</b> drop the files ·
+<b>Download:</b> <code>scan --type quick</code></p></div>
+<div class="card"><h3>🔍 Signature Full Scan</h3><p>Your entire home folder, file by file.
+Thorough; takes a while. <b>Download only:</b> <code>scan --type full</code></p></div>
+<div class="card"><h3>🎯 Signature Custom Scan</h3><p>Only the folders or files you name.
+<b>On-site:</b> drop exactly those files · <b>Download:</b> <code>scan --type custom --path ~/Downloads</code></p></div>
+<div class="card"><h3>🔌 Signature USB Scan</h3><p>Every plugged-in stick, external drive and card —
+autorun droppers live here. <b>Download only:</b> <code>scan --type usb</code></p></div>
+<div class="card"><h3>🚀 Signature Startup Scan</h3><p>Every program set to auto-start with your system,
+checked one by one — the persistence trick malware loves.
+<b>Download only:</b> <code>scan --type startup</code></p></div>
+<div class="card"><h3>🧠 Signature Memory Scan</h3><p>The program file behind each running process,
+checked against the threat database. <b>Download only:</b> <code>scan --type memory</code></p></div>
+</div>
+
+<h2>Scan right here — drop your files</h2>
+<div class="card" id="dropCard">
+<div id="drop" style="border:2px dashed var(--grn);border-radius:12px;padding:34px 18px;text-align:center;cursor:pointer">
+<b style="font-size:1.1rem">📁 Drop files here to scan them</b>
+<p class="note">or <u>browse</u> — files are fingerprinted (SHA-256) and checked against the
+threat database plus disguise heuristics, all inside your browser. Nothing is uploaded.</p>
+<input id="filePick" type="file" multiple style="display:none">
+</div>
+<div id="scanOut" style="margin-top:12px"><p class="note">No files scanned yet.</p></div>
+</div>
+<p class="note"><b>Honest limits of this page.</b> It can only check files you hand it — it cannot see
+the rest of your PC, your USB sticks, your startup entries, or your running programs. For those six
+full scan types, download the tools below. That is not a sales pitch; it is how browsers work.</p>
+
+<h2>Clean up</h2>
+<div class="cards">
+<div class="card"><h3>🧹 On this page</h3><p>Your browser cannot delete or quarantine PC files —
+so cleanup here means <b>exact manual steps</b>. Press the button and the AI resolver below
+walks you through each finding, step by step.</p>
+<button class="btn warn" id="toResolver" type="button">Clean up with the AI resolver ↓</button></div>
+<div class="card"><h3>🧹 With the download</h3><p>The real thing: threats quarantined for real,
+with your confirmation, journaled so every action can be rewound.</p>
+<pre class="cmd">python3 shield_basic.py scan --type full --clean</pre>
+<p class="note">Add <code>--yes</code> to skip per-file confirmation. Restore any time:
+<code>python3 shield_basic.py restore &lt;id&gt;</code> — or tell Shield “undo”.</p></div>
+</div>
+
+<h2>Download the full scanner</h2>
+<div class="card"><h3>⬇ Get every scan type for your PC</h3>
+<p>One zip per Shield — each runs all six scan types and detects your OS automatically.</p>
+<p><a class="btn" href="downloads/signature-shield-ai.zip" download>⬇ AI Defense-Grade (flagship)</a>
+<a class="btn sec" href="downloads/signature-shield-basic.zip" download>⬇ Basic</a>
+<a class="btn sec" href="downloads/signature-shield-defense.zip" download>⬇ Defense-Grade</a></p>
+<p class="note"><b>Every scan type, one command each:</b></p>
+<pre class="cmd" id="cmdList">python3 shield_basic.py scan --type quick      # everyday check
+python3 shield_basic.py scan --type full       # whole home folder
+python3 shield_basic.py scan --type custom --path ~/Downloads   # your pick
+python3 shield_basic.py scan --type usb        # sticks, drives, cards
+python3 shield_basic.py scan --type startup    # auto-start programs
+python3 shield_basic.py scan --type memory     # running programs
+python3 shield_basic.py scan --type full --clean   # scan + quarantine (asks first)</pre>
+<button class="btn sec" id="copyCmds" type="button">📋 Copy the commands</button>
+<p class="note">Defense-Grade adds the behavioral-heuristic overlay on top:
+<code>python3 shield_defense.py scan --type full</code></p></div>
+
+<h2 id="aiResolver">Part 2 <span class="note">(optional)</span> — 🤖 AI Scan &amp; Resolver</h2>
+<div class="card">
+<p>Shield explains your scan in plain language and resolves it with you — on this page over your
+dropped-file results, or on your PC inside the download
+(<code>python3 shield_ai_defense.py chat</code> → say “full scan”).</p>
+<div class="searchrow"><input id="aiScanAsk" type="search"
+placeholder="Ask Shield — e.g. “what did you find?” or “my pc is slow”" aria-label="Ask Shield">
+<button class="btn" id="aiScanGo" type="button">Ask</button></div>
+<div id="aiScanOut" aria-live="polite"><p class="note">Drop files above first, or just describe
+what is wrong — slow PC, popups, locked files, strange homepage…</p></div>
+</div>
+<script>""" + OS_JS + """
+(function(){
+var os=detectOS(),p=PROFILES[os]||PROFILES['Unknown'];
+document.getElementById('scanOs').innerHTML='<b>Free scan — detected system: '+os+'.</b> '+p.note;
+var DB=null,SCAN_FINDINGS=[];
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function hex(buf){return Array.prototype.map.call(new Uint8Array(buf),function(b){return ('0'+b.toString(16)).slice(-2);}).join('');}
+function dbLoad(){
+ if(DB)return Promise.resolve(DB);
+ return fetch('tools/signatures.json').then(function(r){return r.json();}).then(function(j){DB=j;return j;});
+}
+var DOUBLE_EXT=[".pdf.exe",".doc.exe",".docx.exe",".xls.exe",".xlsx.exe",".jpg.exe",".jpeg.exe",".png.exe",".gif.exe",".txt.exe",".zip.exe",".rar.exe",".mp3.exe",".mp4.exe",".scr",".pif",".bat.exe",".cmd.exe",".lnk.exe"];
+var RISKY_EXT=[".exe",".scr",".pif",".bat",".cmd",".ps1",".vbs",".msi",".com",".jar"];
+function verdictFor(name,digest,db){
+ var low=name.toLowerCase(),reasons=[],verdict='CLEAN',cls='b-low';
+ var sigs=db.sha256||{},bad=(db.filenames||[]).map(function(n){return n.toLowerCase();});
+ if(sigs[digest]){verdict='KNOWN THREAT';cls='b-crit';
+  reasons.push('Fingerprint matches the threat database: '+sigs[digest]);}
+ if(bad.indexOf(low)>=0){verdict='SUSPICIOUS';cls='b-high';
+  reasons.push('Filename is on the known-threat name list.');}
+ for(var i=0;i<DOUBLE_EXT.length;i++){
+  if(low.slice(-DOUBLE_EXT[i].length)===DOUBLE_EXT[i]){verdict='SUSPICIOUS';cls='b-high';
+   reasons.push('Double-extension disguise ('+DOUBLE_EXT[i]+') — pretends to be a document or image but is actually executable. One of the oldest malware tricks.');break;}}
+ var ext=low.slice(low.lastIndexOf('.'));
+ if(verdict==='CLEAN'&&RISKY_EXT.indexOf(ext)>=0){verdict='CAUTION';cls='b-med';
+  reasons.push('It is an executable program, so it *can* change your system. Only run it if you know where it came from.');}
+ return {verdict:verdict,cls:cls,reasons:reasons,digest:digest};
+}
+function renderResults(){
+ var box=document.getElementById('scanOut');
+ if(!SCAN_FINDINGS.length){box.innerHTML='<p class="note">No files scanned yet.</p>';return;}
+ var h='<p><b>'+SCAN_FINDINGS.length+' file(s) checked</b> — inside your browser, nothing uploaded.</p>';
+ SCAN_FINDINGS.forEach(function(f,i){
+  h+='<div class="rec"><h4>'+esc(f.name)+' <span class="badge '+f.cls+'">'+f.verdict+'</span></h4>';
+  h+='<p class="note">SHA-256: <code>'+f.digest.slice(0,24)+'…</code> · '+(f.size/1024).toFixed(1)+' KB</p>';
+  if(f.reasons.length)h+='<p class="sol">'+f.reasons.map(function(r){return '• '+esc(r);}).join('<br>')+'</p>';
+  else h+='<p class="sol">No threat fingerprints, no known-bad name, no disguise tricks. I cannot promise any file is 100% safe — but nothing about this one worries me.</p>';
+  h+='</div>';});
+ box.innerHTML=h;
+}
+function scanFiles(files){
+ dbLoad().then(function(db){
+  var jobs=[];
+  for(var i=0;i<files.length;i++)(function(file){
+   jobs.push(file.arrayBuffer().then(function(buf){
+    return crypto.subtle.digest('SHA-256',buf).then(function(d){
+     var v=verdictFor(file.name,hex(d),db);
+     v.name=file.name;v.size=file.size;return v;});}));
+  })(files[i]);
+  document.getElementById('scanOut').innerHTML='<p class="note">🔎 Fingerprinting '+files.length+' file(s)…</p>';
+  Promise.all(jobs).then(function(vs){SCAN_FINDINGS=SCAN_FINDINGS.concat(vs);renderResults();});
+ }).catch(function(){document.getElementById('scanOut').innerHTML='<p class="note">Could not load the threat database — check your connection and try again.</p>';});
+}
+var drop=document.getElementById('drop'),pick=document.getElementById('filePick');
+drop.addEventListener('click',function(){pick.click();});
+pick.addEventListener('change',function(){if(pick.files.length)scanFiles(pick.files);pick.value='';});
+['dragover','dragenter'].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.style.borderColor='#fff';});});
+['dragleave','drop'].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.style.borderColor='';});});
+drop.addEventListener('drop',function(e){var fs=e.dataTransfer.files;if(fs&&fs.length)scanFiles(fs);});
+document.getElementById('toResolver').onclick=function(){
+ document.getElementById('aiResolver').scrollIntoView({behavior:'smooth'});
+ document.getElementById('aiScanAsk').focus({preventScroll:true});};
+document.getElementById('copyCmds').onclick=function(){
+ var t=document.getElementById('cmdList').textContent;
+ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t);}
+ else{var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');}catch(e){}ta.remove();}};
+/* ---- AI Scan & Resolver (on-site): plain-language, grounded in YOUR results ---- */
+function aiSay(html){document.getElementById('aiScanOut').innerHTML='<div class="rec"><p class="sol">'+html+'</p></div>';}
+function plainWhy(f){
+ if(f.verdict==='KNOWN THREAT')return 'its fingerprint is in the threat database — this is a confirmed bad file. Delete it and empty your trash.';
+ if(f.verdict==='SUSPICIOUS')return f.reasons[0]+' Treat it as dangerous until proven otherwise.';
+ if(f.verdict==='CAUTION')return 'it is a real program. If you did not mean to download it, delete it; if you trust the source, it is your call.';
+ return 'it came back clean.';
+}
+function aiAnswer(q){
+ q=(q||'').trim();var ql=q.toLowerCase();
+ if(!ql){aiSay('Ask me about your scan results, or describe a symptom — “my pc is slow”, “popups everywhere”, “files are locked”.');return;}
+ var bad=SCAN_FINDINGS.filter(function(f){return f.verdict!=='CLEAN';});
+ if(/result|found|find|what.*(scan|check)|report|mean/.test(ql)){
+  if(!SCAN_FINDINGS.length){aiSay('You have not scanned any files yet — drop some files in the box above and I will explain every result in plain language.');return;}
+  if(!bad.length){aiSay('I checked '+SCAN_FINDINGS.length+' file(s) you dropped and every one came back clean — no threat fingerprints, no disguise tricks. The honest caveat: I can only judge the files you handed me, not your whole PC. For the full six scan types, download the tools.');return;}
+  var h='Here is what I found in your '+SCAN_FINDINGS.length+' dropped file(s), in plain language:<br><br>';
+  bad.forEach(function(f){h+='• <b>'+esc(f.name)+'</b> — flagged <b>'+f.verdict+'</b>: '+esc(plainWhy(f))+'<br>';});
+  h+='<br><b>What to do:</b> 1) Do not open the flagged file(s). 2) Delete '+(bad.length>1?'them':'it')+' and empty your trash/recycle bin. 3) If it came by email or download, delete the original message too. 4) Want the deep version? Download the shield and run <code>scan --type full --clean</code> — it quarantines threats for real, with an undo for every action.';
+  aiSay(h);return;}
+ if(/clean|fix|remove|delete|quarantine|get rid/.test(ql)){
+  if(bad.length){
+   var h='Cleaning up <b>'+bad.length+'</b> flagged file(s) — exact steps, since this page cannot touch your PC itself:<br><br>';
+   bad.forEach(function(f,i){h+=(i+1)+'. Delete <b>'+esc(f.name)+'</b> ('+f.verdict.toLowerCase()+': '+esc(f.reasons[0]||'flagged')+')<br>';});
+   h+='<br>Then: empty your trash/recycle bin, restart your browser, and run the downloaded full scan to make sure nothing else is hiding: <code>python3 shield_basic.py scan --type full --clean</code>. Every cleanup there is journaled — say “undo” to reverse anything.';
+   aiSay(h);return;}
+  aiSay('Nothing to clean — your dropped files came back clean'+(SCAN_FINDINGS.length?'':' (and none have been scanned yet)')+'. If something still feels wrong, describe the symptom and I will walk you through it.');return;}
+ var KB=[
+  [/slow|lag|freez|crawl/, 'A slow PC has boring causes far more often than viruses: too many startup programs, a full disk, or an old spinning hard drive. <b>Do this:</b> 1) Restart (not sleep — restart). 2) Uninstall programs you do not recognize. 3) Check free disk space — under 10% free will choke any system. 4) Then download the shield and run <code>scan --type startup</code> to see everything auto-starting, and <code>scan --type memory</code> to check what is running right now.'],
+  [/popup|pop-up|ads|advert/, 'Popups everywhere usually means adware — a browser hijacker or a shady extension, not a deep virus. <b>Do this:</b> 1) Remove browser extensions you did not install yourself. 2) Reset your browser homepage and search engine. 3) Clear site data. 4) Run <code>scan --type quick</code> on the download to catch the dropper.'],
+  [/ransom|locked|encrypt|bitcoin|pay.*(file|decrypt)/, 'Locked/encrypted files with a ransom note is ransomware — act fast and <b>do not pay</b>: 1) Disconnect from the internet right now. 2) Do NOT delete the note — it identifies the strain. 3) Restore your files from a clean backup. 4) The archive has the WannaCry-class cure pattern; the Shield tripwires (honeypots) exist to catch the next one early. If there is no backup, say so and I will walk you through identification.'],
+  [/homepage|redirect|search.*(chang|hijack)|toolbar/, 'A changed homepage or search redirect is a browser hijacker. <b>Do this:</b> 1) Remove unknown extensions. 2) Set your homepage/search back manually. 3) Check installed programs for anything installed the day it started and remove it. 4) Run <code>scan --type startup</code> — hijackers love auto-start entries.'],
+  [/email|phish|scam.*(email|message)|suspicious.*(link|attach)/, 'Do not click it and do not open the attachment. <b>Do this:</b> 1) Delete the message. 2) If you already clicked, disconnect and run <code>scan --type full --clean</code>. 3) Change the password of any account you typed into that page, from a clean device. Forward the phish to your email provider\u2019s report address if it has one.'],
+  [/boot|start.*(slow|fail)|blue screen|bsod|cras/, 'Boot trouble is usually drivers, disk errors, or a bad update — not always malware. <b>Do this:</b> 1) Boot into Safe Mode and see if it behaves. 2) Undo the most recent change (update, new program). 3) Run <code>scan --type startup</code> from Safe Mode to audit auto-start entries. If Safe Mode is also broken, say so — that changes the plan.']];
+ for(var i=0;i<KB.length;i++){if(KB[i][0].test(ql)){aiSay(KB[i][1]);return;}}
+ aiSay('I can explain your dropped-file results (“what did you find?”), walk you through cleanup (“clean it up”), or diagnose a symptom — try “my pc is slow”, “popups everywhere”, or “files are locked”. On your PC, Shield itself does all of this conversationally: <code>python3 shield_ai_defense.py chat</code>.');
+}
+document.getElementById('aiScanGo').onclick=function(){aiAnswer(document.getElementById('aiScanAsk').value);};
+document.getElementById('aiScanAsk').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();aiAnswer(e.target.value);}});
+})();</script>
+"""
+
+SCAN_WELCOME = ("<li><b>Scan free.</b> Drop files to check them right now — fingerprints plus "
+ "disguise heuristics, all inside your browser, nothing uploaded.</li>"
+ "<li><b>Six scan types.</b> Quick, full, custom, USB, startup, memory — on-site for dropped "
+ "files, or download the tools for the full PC versions.</li>"
+ "<li><b>Clean up + AI resolver.</b> Exact manual steps here, real quarantine in the download, "
+ "and Shield explains every finding in plain language.</li>")

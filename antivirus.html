@@ -50,12 +50,15 @@ table.prof th{background:#12203a;color:var(--grn)}
 footer{color:#7286b8;font-size:.78rem;text-align:center;margin:20px 0}
 pre.cmd{background:#050a14;border:1px solid var(--line);border-radius:10px;padding:12px;overflow:auto;font-size:.85rem}
 .note{font-size:.85rem;color:var(--dim);line-height:1.6}
-</style></head><body><div class="wrap"><p class="kicker">SITE 32 OF 35 &middot; THE JAH NETWORK</p><header><h1>🛡️ The Signature Antivirus <span class="sh">— every PC deserves every cure</span></h1><nav class="tabs" aria-label="Site pages"><a href="index.html">🏠 Main</a><a href="antivirus.html" class="active">🛡️ Antivirus</a><a href="addons.html">🧩 1 Million Add-Ons</a></nav></header>
+</style></head><body><div class="wrap"><p class="kicker">SITE 32 OF 35 &middot; THE JAH NETWORK</p><header><h1>🛡️ The Signature Antivirus <span class="sh">— every PC deserves every cure</span></h1><nav class="tabs" aria-label="Site pages"><a href="index.html">🏠 Main</a><a href="antivirus.html" class="active">🛡️ Antivirus</a><a href="scan.html">🔎 Free Scan</a><a href="addons.html">🧩 1 Million Add-Ons</a></nav></header>
 <div class="hero"><h2>Download your protection</h2>
 <p>No accounts. No cloud. No subscriptions. Choose a shield, download it, run it on your PC.
 One universal download detects your system automatically and applies the matching profile.</p>
 <p class="freeforever"><b>Free forever.</b> No accounts, no payments, no upsells, no trial traps —
-every tool is yours. If anything ever goes wrong, uninstalling removes everything cleanly.</p></div>
+every tool is yours. If anything ever goes wrong, uninstalling removes everything cleanly.
+Built on well-known antivirus techniques &mdash; signature matching, heuristic analysis,
+quarantine, behavioral monitoring &mdash; as an original Signature implementation: no vendor
+code, no trademarks, no third-party engines.</p></div>
 <div class="osbanner" id="osBanner2">Detecting your system&hellip;</div>
 <h2>Get running in 3 steps</h2>
 <div class="cards">
@@ -93,6 +96,30 @@ USB guard, ransomware tripwires, boot auditor, network monitor. No AI — just t
 in the threat database, the fail-safe undo journal, the <b>off switch</b>
 (<code>install.py --off</code> / <code>--on</code>), and the clean <b>uninstaller</b>
 (<code>install.py --uninstall</code>) that proves zero residue.</p>
+<h2 id="parts">Download in parts</h2>
+<p>Prefer it modular? Each part downloads separately — the installer assembles ("compiles")
+the parts into the working tool on <b>your</b> PC. Nothing runs anywhere else.</p>
+<div class="cards">
+<div class="card"><h3>1 &middot; Engine</h3><p>The scanner core, quarantine with one-command
+restore, the fail-safe action journal, the status checker.</p>
+<a class="btn sec" href="downloads/signature-shield-part-engine.zip" download>&#x2B07; Part 1: Engine</a></div>
+<div class="card"><h3>2 &middot; Signatures</h3><p>The threat fingerprint database. Refresh this
+part any time — or let Shield update it for you automatically.</p>
+<a class="btn sec" href="downloads/signature-shield-part-signatures.zip" download>&#x2B07; Part 2: Signatures</a></div>
+<div class="card"><h3>3 &middot; Shield AI</h3><p>The conversational antivirus AI (Basic +
+Defense-Grade) — runs scans, explains findings, regulates updates.</p>
+<a class="btn sec" href="downloads/signature-shield-part-ai.zip" download>&#x2B07; Part 3: AI</a></div>
+<div class="card"><h3>4 &middot; Scan modules</h3><p>All six Signature scan types (quick, full,
+custom, USB, startup, memory) plus defense heuristics and the monitor.</p>
+<a class="btn sec" href="downloads/signature-shield-part-scans.zip" download>&#x2B07; Part 4: Scans</a></div>
+<div class="card"><h3>5 &middot; Installer</h3><p>Assembles the parts into the working tool and
+keeps the signature database current.</p>
+<a class="btn sec" href="downloads/signature-shield-part-installer.zip" download>&#x2B07; Part 5: Installer</a></div>
+</div>
+<p><b>Assemble:</b> download all five parts into one folder, unzip the installer part, then run<br>
+<code>python3 install.py --assemble &lt;the-folder-with-the-parts&gt;</code> — the installer
+validates every part, compiles the modules, and finishes with <b>PROTECTION: RUNNING</b>.
+Missing a part? It tells you exactly which one. The full bundles above remain the one-click option.</p>
 <h2>Protection profiles — honest, per system</h2>
 <table class="prof"><tr><th>Your system</th><th>What you get</th><th>Why</th></tr>
 <tr><td><b>Windows</b></td><td>Full suite: signature + heuristic scan, netsh firewall rules, USB autorun guard,

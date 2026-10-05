@@ -39,7 +39,8 @@ EDITION_NAMES = {
 }
 FILES = ("install.py", "shield_status.py", "shield_monitor.py", "shield_ai.py",
          "shield_ai_basic.py", "shield_ai_defense.py", "shield_journal.py",
-         "shield_basic.py", "shield_defense.py", "signatures.json")
+         "shield_basic.py", "shield_defense.py", "shield_scan.py",
+         "shield_update.py", "signatures.json")
 
 
 def say(msg):
@@ -155,7 +156,7 @@ def start_monitor(home, binp):
     return False
 
 
-def install(home, edition, auto_yes, sandbox):
+def install(home, edition, auto_yes, sandbox, src_dir=None):
     import shield_journal as journal
     say("🛡️  Signature Shield installer — %s" % EDITION_NAMES[edition])
     say("System detected: %s. Installing to: %s" % (OS_LABEL, home))
@@ -164,11 +165,14 @@ def install(home, edition, auto_yes, sandbox):
     binp = os.path.join(home, "bin")
     os.makedirs(binp, exist_ok=True)
 
+    src = src_dir or HERE
+    if src_dir:
+        say("      Assembling from downloaded parts in %s" % src_dir)
     say("\n[1/5] Copying the tools...")
     for fn in FILES:
-        src = os.path.join(HERE, fn)
-        if os.path.exists(src):
-            shutil.copy2(src, os.path.join(binp, fn))
+        srcf = os.path.join(src, fn)
+        if os.path.exists(srcf):
+            shutil.copy2(srcf, os.path.join(binp, fn))
     say("      %d files installed in %s" % (len([f for f in FILES
           if os.path.exists(os.path.join(binp, f))]), binp))
 
@@ -318,13 +322,15 @@ def stop_monitor(home):
 def remove_scheduler_entries():
     """Remove Signature Shield's scheduler entries on any OS."""
     if OS == "Windows":
-        subprocess.run('schtasks /delete /tn "SignatureShield" /f',
-                       shell=True, capture_output=True)
+        for tn in ("SignatureShield", "SignatureShieldUpdates"):
+            subprocess.run('schtasks /delete /tn "%s" /f' % tn,
+                           shell=True, capture_output=True)
     elif OS == "Darwin":
-        pl = os.path.expanduser("~/Library/LaunchAgents/com.signature.shield.plist")
-        subprocess.run(["launchctl", "unload", pl], capture_output=True)
-        if os.path.exists(pl):
-            os.remove(pl)
+        for pl in (os.path.expanduser("~/Library/LaunchAgents/com.signature.shield.plist"),
+                   os.path.expanduser("~/Library/LaunchAgents/com.signature.shield.updates.plist")):
+            subprocess.run(["launchctl", "unload", pl], capture_output=True)
+            if os.path.exists(pl):
+                os.remove(pl)
     else:
         r = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
         if r.returncode == 0:
@@ -510,6 +516,81 @@ def uninstall(home, auto_yes):
     return 0
 
 
+# Which part zip (or loose files) each tool file belongs to — the
+# "download in parts" story. install.py --assemble <dir> validates the parts,
+# compiles them, and builds the working tool from them.
+PARTS = {
+    "signature-shield-part-engine.zip": ("The engine",
+        ("install.py", "shield_basic.py", "shield_journal.py", "shield_status.py")),
+    "signature-shield-part-signatures.zip": ("The signature database",
+        ("signatures.json",)),
+    "signature-shield-part-ai.zip": ("Shield AI",
+        ("shield_ai.py", "shield_ai_basic.py", "shield_ai_defense.py")),
+    "signature-shield-part-scans.zip": ("Scan modules",
+        ("shield_scan.py", "shield_defense.py", "shield_monitor.py")),
+    "signature-shield-part-installer.zip": ("Installer & updater",
+        ("install.py", "shield_update.py")),
+}
+# install.py itself ships inside two parts; the file set needed for a working tool:
+ASSEMBLE_NEED = ("shield_basic.py", "shield_journal.py", "shield_status.py",
+                 "shield_monitor.py", "shield_ai.py", "shield_ai_basic.py",
+                 "shield_ai_defense.py", "shield_defense.py", "shield_scan.py",
+                 "shield_update.py", "signatures.json", "install.py")
+
+
+def stage_parts(parts_dir):
+    """Validate downloaded parts, unpack them to a staging dir, byte-compile
+    ("compile") them, and return the staging dir. Returns (None, error)."""
+    import compileall
+    import tempfile
+    import zipfile
+    if not os.path.isdir(parts_dir):
+        return None, "not a folder: %s" % parts_dir
+    stage = tempfile.mkdtemp(prefix="shield_parts_")
+    have = {}
+    # 1. unpack every part zip found
+    for part, (_label, files) in PARTS.items():
+        zp = os.path.join(parts_dir, part)
+        if os.path.isfile(zp):
+            try:
+                with zipfile.ZipFile(zp) as z:
+                    z.extractall(stage)
+                for fn in files:
+                    if os.path.isfile(os.path.join(stage, fn)):
+                        have[fn] = part
+            except Exception as e:
+                shutil.rmtree(stage, ignore_errors=True)
+                return None, "could not unpack %s: %s" % (part, e)
+    # 2. also accept loose files dropped straight into the folder
+    for fn in os.listdir(parts_dir):
+        if fn in ASSEMBLE_NEED and fn not in have:
+            shutil.copy2(os.path.join(parts_dir, fn), os.path.join(stage, fn))
+            have[fn] = "(loose file)"
+    missing = [fn for fn in ASSEMBLE_NEED if fn not in have]
+    if missing:
+        shutil.rmtree(stage, ignore_errors=True)
+        return None, ("incomplete parts — missing: %s. Download the remaining "
+                      "part zips and try again." % ", ".join(missing))
+    # 3. sanity: the signature DB must parse and carry a version
+    try:
+        db = json.load(open(os.path.join(stage, "signatures.json"), encoding="utf-8"))
+        assert isinstance(db.get("sha256"), dict) and db.get("meta", {}).get("version")
+    except Exception as e:
+        shutil.rmtree(stage, ignore_errors=True)
+        return None, "the signature-database part failed validation: %s" % e
+    # 4. compile: byte-compile every module so the installed tool runs from
+    #    compiled parts (and syntax errors surface here, not later)
+    if not compileall.compile_dir(stage, quiet=1):
+        shutil.rmtree(stage, ignore_errors=True)
+        return None, "a part failed to compile — re-download the parts and try again."
+    manifest = {"assembled": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "parts": {fn: have[fn] for fn in ASSEMBLE_NEED},
+                "db_version": db["meta"]["version"]}
+    with open(os.path.join(stage, "parts.json"), "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2)
+    return stage, None
+
+
 def main(argv):
     # pre-scan flags first — --yes/--home/--edition work in ANY position
     edition = "ai-defense"
@@ -523,6 +604,27 @@ def main(argv):
             home = argv[i + 1]
     if "--uninstall" in argv:
         return uninstall(home, auto_yes)
+    if "--assemble" in argv:
+        i = argv.index("--assemble")
+        parts_dir = argv[i + 1] if i + 1 < len(argv) else None
+        if not parts_dir:
+            say("usage: python3 install.py --assemble <parts-folder> [--edition X] [--yes]")
+            return 2
+        say("Assembling Signature Shield from downloaded parts in %s ..." % parts_dir)
+        stage, err = stage_parts(parts_dir)
+        if stage is None:
+            say("Assembly failed: %s" % err)
+            return 1
+        say("All %d parts present and compiled." % len(PARTS))
+        if not sandbox and not ask(
+                "Install %s to %s from these parts?" % (EDITION_NAMES[edition], home), auto_yes):
+            say("Cancelled — nothing was touched.")
+            shutil.rmtree(stage, ignore_errors=True)
+            return 0
+        sys.path.insert(0, stage)  # installer's own imports come from the parts
+        rc = install(home, edition, auto_yes, sandbox, src_dir=stage)
+        shutil.rmtree(stage, ignore_errors=True)
+        return rc
     if "--off" in argv:
         return 0 if protection_off(home) else 1
     if "--on" in argv:

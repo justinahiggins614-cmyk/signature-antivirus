@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assemble the three Signature Antivirus pages from shared chrome."""
+"""Assemble the four Signature Antivirus pages from shared chrome."""
 import json
 import os
 import re
@@ -140,14 +140,16 @@ if(window.JAHProfile&&JAHProfile.ui)JAHProfile.ui.renderButton(mount);
 def page(title, desc, tab, body, welcome_items):
     tabs = (('<a href="index.html"' + (' class="active"' if tab == 0 else '') + '>🏠 Main</a>')
             + ('<a href="antivirus.html"' + (' class="active"' if tab == 1 else '') + '>🛡️ Antivirus</a>')
+            + ('<a href="scan.html"' + (' class="active"' if tab == 3 else '') + '>🔎 Free Scan</a>')
             + ('<a href="addons.html"' + (' class="active"' if tab == 2 else '') + '>🧩 1 Million Add-Ons</a>'))
+    canon = {0: "index.html", 1: "antivirus.html", 2: "addons.html", 3: "scan.html"}[tab]
     return ("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">"
             "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
             "<title>" + title + " — The Signature Antivirus</title>"
             "<meta name=\"description\" content=\"" + desc + "\">"
-            "<link rel=\"canonical\" href=\"" + BASE + "/" + ("index.html" if tab == 0 else ("antivirus.html" if tab == 1 else "addons.html")) + "\">"
+            "<link rel=\"canonical\" href=\"" + BASE + "/" + canon + "\">"
             "<style>" + CSS + "</style></head><body><div class=\"wrap\">"
-            "<p class=\"kicker\">SITE 32 OF 32 &middot; THE JAH NETWORK</p>"
+            "<p class=\"kicker\">SITE 32 OF 35 &middot; THE JAH NETWORK</p>"
             "<header><h1>🛡️ The Signature Antivirus <span class=\"sh\">— every PC deserves every cure</span></h1>"
             "<nav class=\"tabs\" aria-label=\"Site pages\">" + tabs + "</nav></header>"
             + body +
@@ -276,8 +278,8 @@ AZ_WELCOME = ("<li><b>Search the cures.</b> Every virus gets its own solution ad
 
 # ============================ ASSEMBLY ============================
 import page_bodies as _pb
-from page_bodies import index_body, antivirus_body, addons_body
-from page_bodies import INDEX_WELCOME, AV_WELCOME, AZ_WELCOME
+from page_bodies import index_body, antivirus_body, addons_body, scan_body
+from page_bodies import INDEX_WELCOME, AV_WELCOME, AZ_WELCOME, SCAN_WELCOME
 _pb.OS_JS = OS_JS  # shared OS-detection snippet used by page bodies
 
 def main():
@@ -295,6 +297,9 @@ def main():
         ("antivirus.html", page("Get Protected",
               "Download Signature Shield Basic or Defense-Grade — real tools that detect your OS automatically.",
               1, antivirus_body(), AV_WELCOME)),
+        ("scan.html", page("Free Scan",
+              "Free Signature scans: quick, full, custom, USB, startup, memory — scan files on-site or download the full PC scanner, then clean up with the AI resolver.",
+              3, scan_body(), SCAN_WELCOME)),
         ("addons.html", page("1 Million Add-Ons",
               "A specific solution for every virus — the add-on archive marching to one million.",
               2, addons_body(n), AZ_WELCOME)),
@@ -306,7 +311,7 @@ def main():
     # sitemap
     sm = ('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
           + "\n".join('  <url><loc>%s/%s</loc></url>' % (BASE, p) for p in
-                       ["", "index.html", "antivirus.html", "addons.html"])
+                       ["", "index.html", "antivirus.html", "scan.html", "addons.html"])
           + "\n</urlset>\n")
     open(os.path.join(REPO, "sitemap.xml"), "w").write(sm)
     # robots
@@ -314,9 +319,10 @@ def main():
         "User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n" % BASE)
     # api.json
     api = {"site": "The Signature Antivirus", "title_provisional": True,
-           "url": BASE + "/", "site_number": 32, "site_count": 32,
+           "url": BASE + "/", "site_number": 32, "site_count": 35,
            "pages": [{"name": "Main", "url": BASE + "/"},
                      {"name": "Antivirus", "url": BASE + "/antivirus.html"},
+                     {"name": "Free Scan", "url": BASE + "/scan.html"},
                      {"name": "1 Million Add-Ons", "url": BASE + "/addons.html"}],
            "tools": [{"name": "install.py", "url": BASE + "/tools/install.py",
                       "desc": "Installer: download, run, PROTECTION: RUNNING"},
@@ -334,6 +340,10 @@ def main():
                       "desc": "Plain-language protection status"},
                      {"name": "shield_basic.py", "url": BASE + "/tools/shield_basic.py"},
                      {"name": "shield_defense.py", "url": BASE + "/tools/shield_defense.py"},
+                     {"name": "shield_scan.py", "url": BASE + "/tools/shield_scan.py",
+                      "desc": "Universal scan engine: quick, full, custom, usb, startup, memory"},
+                     {"name": "shield_update.py", "url": BASE + "/tools/shield_update.py",
+                      "desc": "Signature-database updater: check/apply, journaled + rewindable"},
                      {"name": "signatures.json", "url": BASE + "/tools/signatures.json"}],
            "bundles": [{"name": "signature-shield-ai.zip",
                         "url": BASE + "/downloads/signature-shield-ai.zip"},
@@ -343,6 +353,21 @@ def main():
                         "url": BASE + "/downloads/signature-shield-basic.zip"},
                        {"name": "signature-shield-defense.zip",
                         "url": BASE + "/downloads/signature-shield-defense.zip"}],
+           "parts": [{"name": "signature-shield-part-engine.zip",
+                      "url": BASE + "/downloads/signature-shield-part-engine.zip",
+                      "desc": "Part 1: engine"},
+                     {"name": "signature-shield-part-signatures.zip",
+                      "url": BASE + "/downloads/signature-shield-part-signatures.zip",
+                      "desc": "Part 2: signature database"},
+                     {"name": "signature-shield-part-ai.zip",
+                      "url": BASE + "/downloads/signature-shield-part-ai.zip",
+                      "desc": "Part 3: Shield AI"},
+                     {"name": "signature-shield-part-scans.zip",
+                      "url": BASE + "/downloads/signature-shield-part-scans.zip",
+                      "desc": "Part 4: scan modules"},
+                     {"name": "signature-shield-part-installer.zip",
+                      "url": BASE + "/downloads/signature-shield-part-installer.zip",
+                      "desc": "Part 5: installer & updater"}],
            "addons": {"count": n, "goal": 1000000,
                       "index": BASE + "/data/addons/index.json"}}
     json.dump(api, open(os.path.join(REPO, "api.json"), "w"), indent=2)

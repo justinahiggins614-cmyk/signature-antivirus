@@ -6,6 +6,10 @@ protection profile automatically.
 
 Subcommands (all print exactly what they do; nothing is applied silently):
   osinfo                  show detected OS + protection profile
+  scan --type quick|full|custom|usb|startup|memory [--path P] [--clean] [--yes]
+                          the six Signature scan types: signature engine +
+                          behavioral-heuristic overlay; --clean quarantines
+                          findings (asks first; journaled, rewindable)
   heuristic-scan <dir>    behavioral-heuristic scan (double extensions,
                           executables in temp dirs, script keyword heuristics,
                           extension-vs-content mismatch)
@@ -424,6 +428,61 @@ def main(argv):
             print("SUSPICIOUS: %s" % f["path"])
             for x in f["reasons"]:
                 print("    - %s" % x)
+        return 0
+    if cmd == "scan":
+        # Defense-Grade scan: signature engine + behavioral-heuristic overlay.
+        # scan --type quick|full|custom|usb|startup|memory [--path P] [--clean] [--yes]
+        from shield_scan import run_scan, print_result, clean_findings, SCAN_TYPES
+        args = argv[1:]
+        stype, paths, clean, yes = "quick", [], False, False
+        i = 0
+        while i < len(args):
+            a = args[i]
+            if a == "--type" and i + 1 < len(args):
+                stype = args[i + 1]; i += 2
+            elif a == "--path" and i + 1 < len(args):
+                paths.append(args[i + 1]); i += 2
+            elif a == "--clean":
+                clean = True; i += 1
+            elif a in ("--yes", "-y"):
+                yes = True; i += 1
+            else:
+                i += 1
+        if stype not in SCAN_TYPES:
+            print("unknown scan type '%s' — choose: %s" % (stype, ", ".join(SCAN_TYPES)))
+            return 2
+        print("OS profile: %s (Defense-Grade: signatures + heuristics)" % OS_LABEL)
+        res = run_scan(stype, paths=paths or None)
+        # heuristic overlay over the same scanned area
+        h_targets = {"quick": None, "full": None, "custom": None,
+                     "usb": None, "startup": None, "memory": None}
+        try:
+            from shield_scan import quick_targets, full_targets, usb_targets
+            h_targets = {"quick": [p for p, _d in quick_targets()], "full": full_targets(),
+                         "custom": paths or [], "usb": usb_targets(),
+                         "startup": [], "memory": []}
+        except Exception:
+            pass
+        seen = {f["path"] for f in res["findings"]}
+        for t in (h_targets.get(stype) or []):
+            if not os.path.isdir(t):
+                continue
+            try:
+                hr = heuristic_scan(t)
+            except Exception:
+                continue
+            for f in hr["findings"]:
+                if f["path"] not in seen:
+                    seen.add(f["path"])
+                    res["findings"].append(
+                        {"path": f["path"],
+                         "reasons": ["heuristic: " + r for r in f["reasons"]]})
+        print_result(res)
+        if clean and res.get("findings"):
+            import shield_basic
+            n = clean_findings(res, shield_basic.quarantine_file,
+                               journal_home=os.getcwd(), assume_yes=yes)
+            print("cleaned %d item(s) — restore anytime: python3 shield_basic.py restore <id>" % n)
         return 0
     if cmd == "firewall":
         out = argv[argv.index("--out") + 1] if "--out" in argv else None

@@ -3,7 +3,7 @@
   "title_provisional": true,
   "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/",
   "site_number": 32,
-  "site_count": 32,
+  "site_count": 35,
   "pages": [
     {
       "name": "Main",
@@ -12,6 +12,10 @@
     {
       "name": "Antivirus",
       "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/antivirus.html"
+    },
+    {
+      "name": "Free Scan",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/scan.html"
     },
     {
       "name": "1 Million Add-Ons",
@@ -63,6 +67,16 @@
       "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/tools/shield_defense.py"
     },
     {
+      "name": "shield_scan.py",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/tools/shield_scan.py",
+      "desc": "Universal scan engine: quick, full, custom, usb, startup, memory"
+    },
+    {
+      "name": "shield_update.py",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/tools/shield_update.py",
+      "desc": "Signature-database updater: check/apply, journaled + rewindable"
+    },
+    {
       "name": "signatures.json",
       "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/tools/signatures.json"
     }
@@ -83,6 +97,33 @@
     {
       "name": "signature-shield-defense.zip",
       "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/downloads/signature-shield-defense.zip"
+    }
+  ],
+  "parts": [
+    {
+      "name": "signature-shield-part-engine.zip",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/downloads/signature-shield-part-engine.zip",
+      "desc": "Part 1: engine"
+    },
+    {
+      "name": "signature-shield-part-signatures.zip",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/downloads/signature-shield-part-signatures.zip",
+      "desc": "Part 2: signature database"
+    },
+    {
+      "name": "signature-shield-part-ai.zip",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/downloads/signature-shield-part-ai.zip",
+      "desc": "Part 3: Shield AI"
+    },
+    {
+      "name": "signature-shield-part-scans.zip",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/downloads/signature-shield-part-scans.zip",
+      "desc": "Part 4: scan modules"
+    },
+    {
+      "name": "signature-shield-part-installer.zip",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/downloads/signature-shield-part-installer.zip",
+      "desc": "Part 5: installer & updater"
     }
   ],
   "addons": {
