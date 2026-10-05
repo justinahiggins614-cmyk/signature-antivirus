@@ -154,7 +154,7 @@ def page(title, desc, tab, body, welcome_items):
             "<nav class=\"tabs\" aria-label=\"Site pages\">" + tabs + "</nav></header>"
             + body +
             "<nav class=\"jahnet\" aria-label=\"JAH Network\">" + NAV + "</nav>"
-            "<footer>The Signature Antivirus · title provisional · all tools are real downloads that run on your own PC — "
+            "<footer>The Signature Antivirus · all tools are real downloads that run on your own PC — "
             "no accounts, no cloud, no subscriptions · virus facts are public record</footer>"
             "</div>" + welcome_block(welcome_items) + "</body></html>")
 
