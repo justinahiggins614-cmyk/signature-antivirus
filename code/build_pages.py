@@ -1,0 +1,330 @@
+#!/usr/bin/env python3
+"""Assemble the three Signature Antivirus pages from shared chrome."""
+import json
+import os
+import re
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+REPO = os.path.dirname(HERE)
+BASE = "https://justinahiggins614-cmyk.github.io/signature-antivirus"
+
+NAV = open("/tmp/nav32_base.html").read().strip()
+NAV = NAV.replace("</div>",
+                  '<span class="here">32 The Signature Antivirus &mdash; YOU ARE HERE</span></div>')
+
+CSS = """
+:root{--grn:#35d07f;--amb:#f5a623;--red:#ff5d5d;--panel:#0e1626;--line:#22314d;--txt:#e8edf4;--dim:#93a3c0}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--txt);background:#070d18;min-height:100vh}
+.wrap{max-width:1060px;margin:0 auto;padding:14px 12px 40px}
+.kicker{letter-spacing:.25em;font-size:.72rem;color:var(--grn);margin:10px 0 4px}
+h1{font-size:1.7rem;margin:.1em 0}
+h1 .sh{font-size:1rem;color:var(--dim);font-weight:400}
+.tabs{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.tabs a{flex:1 1 140px;text-align:center;text-decoration:none;color:var(--txt);background:var(--panel);border:2px solid var(--line);border-radius:999px;padding:11px 8px;font-weight:700}
+.tabs a.active{background:var(--grn);color:#06130b;border-color:var(--grn)}
+.hero{background:linear-gradient(135deg,#0b1a2e,#0e2a1c);border:1px solid var(--line);border-radius:16px;padding:26px 22px;margin:14px 0}
+.hero h2{margin:.1em 0;color:var(--grn)}
+.mission{background:var(--panel);border-left:4px solid var(--grn);border-radius:0 12px 12px 0;padding:18px;margin:16px 0;font-size:1.02rem;line-height:1.65}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.stat{flex:1 1 130px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+.stat b{display:block;font-size:1.5rem;color:var(--grn)}
+.stat span{font-size:.8rem;color:var(--dim)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:16px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+.card h3{margin:.2em 0;color:var(--grn)}
+.card p{color:var(--dim);line-height:1.55}
+.btn{display:inline-block;background:var(--grn);color:#06130b;border:0;border-radius:999px;padding:12px 22px;font-weight:800;font-size:1rem;cursor:pointer;text-decoration:none;margin:6px 6px 6px 0}
+.btn.sec{background:transparent;color:var(--grn);border:2px solid var(--grn)}
+.btn.warn{background:var(--amb);color:#201300}
+.osbanner{background:#0b2233;border:1px solid #2a5a8a;border-radius:12px;padding:14px 16px;margin:14px 0;font-size:1rem;line-height:1.5}
+.osbanner b{color:#7ec8ff}
+table.prof{width:100%;border-collapse:collapse;margin:14px 0;font-size:.92rem}
+table.prof th,table.prof td{border:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}
+table.prof th{background:#12203a;color:var(--grn)}
+.badge{display:inline-block;border-radius:999px;padding:2px 10px;font-size:.75rem;font-weight:700;margin:2px 4px 2px 0}
+.b-crit{background:#3a0d0d;color:#ff9d9d}.b-high{background:#3a240d;color:#ffc98a}.b-med{background:#3a340d;color:#ffe58a}.b-low{background:#0d3a1c;color:#8fe6a8}
+.b-doc{background:#0d2a3a;color:#8ad4ff}.b-gen{background:#2a2a2a;color:#c9c9c9}
+.az{margin:10px 0}
+.az details{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin:6px 0}
+.az summary{padding:12px;cursor:pointer;font-weight:700;color:var(--grn)}
+.rec{border-top:1px solid var(--line);padding:12px}
+.rec h4{margin:.1em 0}
+.rec .sol{color:var(--dim);font-size:.9rem;line-height:1.55}
+.searchrow{display:flex;gap:8px;margin:12px 0}
+.searchrow input{flex:1;padding:12px 14px;border-radius:999px;border:2px solid var(--line);background:#0a1222;color:var(--txt);font-size:1rem}
+.jahnet{margin:26px 0 10px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#0b1322;font-size:.82rem;line-height:2.1}
+.jahnet .t{color:var(--grn);font-weight:800;letter-spacing:.2em;margin-right:10px}
+.jahnet a{color:#9fb3d8;text-decoration:none;margin:0 8px 0 0;white-space:nowrap}
+.jahnet .here{display:inline-block;background:#0d3a1c;color:#8fe6a8;border:1px solid var(--grn);border-radius:999px;padding:2px 12px;font-weight:800;margin:4px 0}
+footer{color:#7286b8;font-size:.78rem;text-align:center;margin:20px 0}
+pre.cmd{background:#050a14;border:1px solid var(--line);border-radius:10px;padding:12px;overflow:auto;font-size:.85rem}
+.note{font-size:.85rem;color:var(--dim);line-height:1.6}
+"""
+
+OS_JS = """
+function detectOS(){
+  var p='';
+  try{if(navigator.userAgentData&&navigator.userAgentData.platform)p=navigator.userAgentData.platform;}catch(e){}
+  if(!p)p=navigator.platform||'';
+  var ua=navigator.userAgent||'',s=(p+' '+ua);
+  if(/Android/i.test(ua))return 'Android';
+  if(/iPhone|iPad|iPod/i.test(ua))return 'iOS';
+  if(/Win/i.test(s))return 'Windows';
+  if(/Mac/i.test(s))return 'macOS';
+  if(/Linux/i.test(s))return 'Linux';
+  return 'Unknown';
+}
+var PROFILES={
+ 'Windows':{dl:true,applies:['Signature scan','Heuristic scan','netsh firewall rules','USB autorun guard','Ransomware honeypots','Startup/registry boot check','Network monitor'],note:'Full suite: Windows faces the broadest malware landscape, so it gets every layer.'},
+ 'macOS':{dl:true,applies:['Signature scan','Heuristic scan','USB guard','Ransomware honeypots','LaunchAgents/Daemons boot check','Network monitor','pf firewall rules (optional)'],note:'macOS ships with Gatekeeper and XProtect and faces a different, smaller threat landscape — it does not need the same protection as Windows. Shield coexists with Apple\\'s built-ins and skips Windows-only measures.'},
+ 'Linux':{dl:true,applies:['Signature scan','Heuristic scan','USB guard','Ransomware honeypots','systemd/cron boot check','Network monitor','ufw or nftables firewall rules','Permissions hardening (SUID/world-writable audit)'],note:'Linux profile focuses on permissions, services, and the firewall.'},
+ 'Android':{dl:false,applies:['Virus solution archive','Hardening checklists'],note:'You are on a phone: the downloadable Python tools run on PCs (Windows, macOS, Linux). Every virus solution and checklist below still applies.'},
+ 'iOS':{dl:false,applies:['Virus solution archive','Hardening checklists'],note:'You are on a phone: the downloadable Python tools run on PCs (Windows, macOS, Linux). Every virus solution and checklist below still applies.'},
+ 'Unknown':{dl:true,applies:['Portable signature scan','Heuristic scan','Generic hardening checklist'],note:'System not recognized: portable scanner plus the generic hardening checklist.'}
+};
+"""
+
+WELCOME_CSS = open("/tmp/welcome_block.html").read()
+WELCOME_CSS = WELCOME_CSS[WELCOME_CSS.find("<style>"):WELCOME_CSS.find("</style>") + 8]
+
+
+def welcome_block(items_html):
+    return WELCOME_CSS + """
+<button id="jahGuideBtn" aria-label="Open the site guide" title="How to use this site">&quest;</button>
+<div id="jahWelcome" aria-hidden="true"><div id="jahWelcomeCard" role="dialog" aria-modal="true" aria-label="Welcome">
+<h2>Welcome to The Signature Antivirus</h2>
+<p class="wsub">Every PC deserves every cure. Here is how to use it:</p>
+<ol>""" + items_html + """</ol>
+<div class="wbtnrow"><button class="btn" id="jahWelcomeOk" type="button">OK &mdash; Got it &#10003;</button>
+<button class="btn" id="jahWelcomeFull" type="button">Full how-to guide</button></div></div></div>
+<div id="jahGuide" aria-hidden="true"><div id="jahGuideCard" role="dialog" aria-modal="true" aria-label="How to use">
+<div id="jahGuideCloseRow"><h2 style="margin:0">How to use this site</h2>
+<button class="btn" id="jahGuideClose" type="button">&#10005; Close</button></div>
+<div class="gfeat"><b>How it works</b><p>Pick your protection, download the real Python tools, run them on your own PC. No accounts, no cloud, no subscriptions — your PC stays yours.</p></div>
+<div class="gfeat"><b>OS-aware</b><p>The site detects your system (Windows, macOS, Linux) and pre-selects the right protection profile. The downloads detect your OS again at runtime and apply the matching profile automatically.</p></div>
+<div class="gfeat"><b>The add-on archive</b><p>Every virus gets its own solution add-on, marching to one million. Use <b>Apply all</b> to harden your whole system at once.</p></div>
+<div class="btnrow" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
+<button class="btn" id="jahGuideTour" type="button">&#9654; Show the welcome guide</button>
+<button class="btn" id="jahGuideClose2" type="button">&#10005; Close guide</button></div></div></div>
+<script>(function(){try{
+var FLAG="jah-tour-seen-antivirus";
+var JAHPS=(function(){try{return (typeof JAHProfile!=="undefined")&&JAHProfile.store?JAHProfile.store:localStorage;}catch(e){return localStorage;}})();
+function ls(k,v){try{if(v===undefined)return JAHPS.get(k);JAHPS.set(k,v)}catch(e){return null}}
+var w=document.getElementById("jahWelcome"),guide=document.getElementById("jahGuide"),
+guideCard=document.getElementById("jahGuideCard"),guideBtn=document.getElementById("jahGuideBtn");
+function openWelcome(){if(!w)return;w.classList.add("show");w.setAttribute("aria-hidden","false");}
+function closeWelcome(){if(!w)return;w.classList.remove("show");w.setAttribute("aria-hidden","true");ls(FLAG,"1")}
+document.getElementById("jahWelcomeOk").onclick=closeWelcome;
+document.getElementById("jahWelcomeFull").onclick=function(){closeWelcome();openGuide()};
+w.addEventListener("click",function(e){if(e.target===w)closeWelcome()});
+document.addEventListener("keydown",function(e){if(w.classList.contains("show")&&e.key==="Escape"){closeWelcome();e.preventDefault()}});
+function openGuide(){if(!guide)return;guide.classList.add("show");guide.setAttribute("aria-hidden","false");}
+function closeGuide(){if(!guide)return;guide.classList.remove("show");guide.setAttribute("aria-hidden","true");}
+guideBtn.onclick=openWelcome;
+document.getElementById("jahGuideClose").onclick=closeGuide;
+document.getElementById("jahGuideClose2").onclick=closeGuide;
+document.getElementById("jahGuideTour").onclick=function(){closeGuide();openWelcome()};
+guide.addEventListener("click",function(e){if(e.target===guide)closeGuide()});
+if(!ls(FLAG)){setTimeout(openWelcome,900)}
+}catch(e){}})();</script>
+<script src="js/signin.js"></script>
+<script src="js/godmode.js"></script>
+<script>(function(){
+var mount=document.querySelector('header nav')||document.querySelector('header')||document.body;
+if(window.JAHProfile&&JAHProfile.ui)JAHProfile.ui.renderButton(mount);
+})();</script>
+"""
+
+
+def page(title, desc, tab, body, welcome_items):
+    tabs = (('<a href="index.html"' + (' class="active"' if tab == 0 else '') + '>🏠 Main</a>')
+            + ('<a href="antivirus.html"' + (' class="active"' if tab == 1 else '') + '>🛡️ Antivirus</a>')
+            + ('<a href="addons.html"' + (' class="active"' if tab == 2 else '') + '>🧩 1 Million Add-Ons</a>'))
+    return ("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">"
+            "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
+            "<title>" + title + " — The Signature Antivirus</title>"
+            "<meta name=\"description\" content=\"" + desc + "\">"
+            "<link rel=\"canonical\" href=\"" + BASE + "/" + ("index.html" if tab == 0 else ("antivirus.html" if tab == 1 else "addons.html")) + "\">"
+            "<style>" + CSS + "</style></head><body><div class=\"wrap\">"
+            "<p class=\"kicker\">SITE 32 OF 32 &middot; THE JAH NETWORK</p>"
+            "<header><h1>🛡️ The Signature Antivirus <span class=\"sh\">— every PC deserves every cure</span></h1>"
+            "<nav class=\"tabs\" aria-label=\"Site pages\">" + tabs + "</nav></header>"
+            + body +
+            "<nav class=\"jahnet\" aria-label=\"JAH Network\">" + NAV + "</nav>"
+            "<footer>The Signature Antivirus · title provisional · all tools are real downloads that run on your own PC — "
+            "no accounts, no cloud, no subscriptions · virus facts are public record</footer>"
+            "</div>" + welcome_block(welcome_items) + "</body></html>")
+
+
+def count():
+    return json.load(open(os.path.join(REPO, "data", "addons", "index.json")))["count"]
+
+def addons_body(n):
+    return """
+<div class="hero"><h2>The 1 Million Add-On Archive</h2>
+<p>A specific solution for <b>every virus</b> — documented historic families plus heuristic defense profiles,
+marching to one million. Search for a threat, open its cure, or press <b>Apply all</b>.</p></div>
+<div class="stats" role="status">
+<div class="stat"><b id="azCount">""" + str(n) + """</b><span>solutions archived</span></div>
+<div class="stat"><b>1,000,000</b><span>march goal</span></div>
+<div class="stat"><b id="docCount">–</b><span>documented families</span></div>
+</div>
+<div class="osbanner" id="applyAll"><b>🛡️ Apply all — full protection for your system.</b><br>
+<span id="aaText">Detecting your system&hellip;</span><br>
+<a class="btn warn" href="tools/shield_defense.py" download style="margin-top:8px">⬇ Download the Apply-All toolkit</a>
+<a class="btn sec" href="tools/shield_basic.py" download style="margin-top:8px">⬇ Basic shield</a>
+<p class="note" id="aaList" style="margin-top:8px"></p>
+<p class="note">Honest mechanics: the button downloads the real toolkit. On your PC,
+<code>python3 shield_defense.py apply-all</code> plants the ransomware tripwires, generates your firewall
+rules, audits auto-start entries, and prints the hardening checklist — the full set for your detected system.</p></div>
+<h2>⭐ AI's Best of the Best</h2>
+<div class="card" id="bestCard"><h3>WannaCry <span class="badge b-crit">critical</span>
+<span class="badge b-doc">documented</span></h3>
+<p class="note">JAH-AV-000029 · ransomware worm · 2017 · public record</p>
+<p><b>The pick:</b> the most instructive cure in the archive — network worm + ransomware in one package,
+defeated by patching, firewalling, and clean backups. If you apply one solution by hand, make it this pattern.</p>
+<p class="sol">Isolate, patch MS17-010 everywhere, block SMB at the firewall (Shield Defense rules),
+restore from clean backups, Safe-Mode Shield scan.</p>
+<button class="btn sec" data-dl="JAH-AV-000029">⬇ Download the removal steps</button></div>
+<div class="searchrow"><input id="azSearch" type="search" placeholder="🔎 Search the archive — virus name, type, or ID…" aria-label="Search add-ons"></div>
+<div class="searchrow"><input id="aiAsk" type="search" placeholder="🤖 Ask the AI — e.g. “ransomware cure”" aria-label="Ask the AI">
+<button class="btn" id="aiGo" type="button">Ask</button></div>
+<p id="aiOut" class="note" aria-live="polite"></p>
+<div class="az" id="azList"><p class="note">Loading the archive…</p></div>
+<p class="note"><b>Two kinds of records.</b> <span class="badge b-doc">documented</span> = real historic malware
+families (public record). <span class="badge b-gen">generated</span> = Signature-authored heuristic defense
+profiles for malware categories — honest training patterns, never presented as real-world strains.</p>
+<script>""" + OS_JS + """
+(function(){
+var os=detectOS(),p=PROFILES[os]||PROFILES['Unknown'];
+document.getElementById('aaText').innerHTML='<b>Detected system: '+os+'.</b> '+p.note;
+document.getElementById('aaList').innerHTML='<b>Your Apply-all set:</b> '+p.applies.join(' · ');
+var IDX=null,DET={};
+function lvlB(l){l=(l||'').toLowerCase();return l==='critical'?'b-crit':(l==='high'?'b-high':(l==='medium'?'b-med':'b-low'));}
+function orgB(o){return o==='documented'?'<span class="badge b-doc">documented</span>':'<span class="badge b-gen">generated</span>';}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function recHTML(r,chunk){
+ var d=DET[r[0]];
+ return '<div class="rec" id="r-'+r[0]+'"><h4>'+esc(r[1])+' <span class="badge '+lvlB(r[3])+'">'+esc(r[3])+'</span>'+orgB(r[4])+'</h4>'
+ +'<p class="note">'+r[0]+' · '+esc(r[2])+'</p>'
+ +(d?'<p class="sol"><b>Vector:</b> '+esc(d.vector)+'</p><p class="sol"><b>Solution:</b> '+esc(d.solution)+'</p><p class="note">'+esc(d.note)+'</p>'
+     +'<button class="btn sec" data-dl="'+r[0]+'">⬇ Download the removal steps</button>':'<p class="note">Loading solution…</p>')
+ +'</div>';
+}
+function needDetails(rows,chunk,done){
+ var ids=rows.filter(function(r){return !DET[r[0]];}).map(function(r){return r[0];});
+ if(!ids.length){done();return;}
+ fetch('data/addons/details/details-c'+String(chunk).padStart(5,'0')+'.json').then(function(r){return r.json();})
+ .then(function(j){Object.keys(j).forEach(function(k){DET[k]=j[k];});done();})
+ .catch(function(){done();});
+}
+function render(filter){
+ var box=document.getElementById('azList');box.innerHTML='';
+ var rows=IDX.rows.filter(function(r){
+  if(!filter)return true;filter=filter.toLowerCase();
+  return r[0].toLowerCase().indexOf(filter)>=0||r[1].toLowerCase().indexOf(filter)>=0||r[2].toLowerCase().indexOf(filter)>=0;});
+ var byL={};rows.forEach(function(r){var L=(r[1][0]||'#').toUpperCase();(byL[L]=byL[L]||[]).push(r);});
+ Object.keys(byL).sort().forEach(function(L){
+  var det=document.createElement('details');det.innerHTML='<summary>'+L+' ('+byL[L].length+')</summary>';
+  var inner=document.createElement('div');det.appendChild(inner);box.appendChild(det);
+  det.addEventListener('toggle',function(){
+   if(!det.open||det.dataset.done)return;det.dataset.done='1';
+   var chunks={};byL[L].forEach(function(r){(chunks[r[5]]=chunks[r[5]]||[]).push(r);});
+   var keys=Object.keys(chunks),i=0;
+   (function next(){if(i>=keys.length){paint();return;}
+    needDetails(chunks[keys[i]],keys[i],function(){i++;next();});})();
+   function paint(){inner.innerHTML=byL[L].map(function(r){return recHTML(r);}).join('');wireDl(inner);}
+  });
+ });
+ if(!Object.keys(byL).length)box.innerHTML='<p class="note">No matches.</p>';
+ var m=/[?&]addon=(JAH-AV-\\d{6})/.exec(location.search);
+ if(m){var hit=IDX.rows.filter(function(r){return r[0]===m[1];})[0];
+  if(hit){needDetails([hit],hit[5],function(){box.innerHTML=recHTML(hit);wireDl(box);});}}
+}
+function wireDl(root){
+ root.querySelectorAll('[data-dl]').forEach(function(b){b.onclick=function(){
+  var id=b.getAttribute('data-dl'),d=DET[id];if(!d)return;
+  var txt='SIGNATURE ANTIVIRUS — REMOVAL STEPS\\n'+id+' — '+d.name+' ('+d.type+', '+d.level+')\\n'
+   +'Origin: '+d.origin+'\\n\\nVECTOR\\n'+d.vector+'\\n\\nSOLUTION\\n'+d.solution+'\\n\\nNOTE\\n'+d.note+'\\n';
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain'}));
+  a.download=id+'-removal-steps.txt';document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},500);};});
+}
+document.getElementById('aiGo').onclick=function(){
+ var q=document.getElementById('aiAsk').value.trim().toLowerCase(),out=document.getElementById('aiOut');
+ if(!q){out.textContent='Ask about a virus type — e.g. “ransomware cure”.';return;}
+ if(!IDX){out.textContent='The archive is still loading — one moment.';return;}
+ var hits=IDX.rows.filter(function(r){return r[1].toLowerCase().indexOf(q)>=0||r[2].toLowerCase().indexOf(q)>=0||r[3].toLowerCase().indexOf(q)>=0;}).slice(0,5);
+ out.innerHTML=hits.length?('I found '+hits.length+' matching solution'+(hits.length>1?'s':'')+': '+
+  hits.map(function(r){return '<b>'+esc(r[1])+'</b> ('+r[0]+')';}).join(', ')+
+  '. Open a letter group above to read the full cure.'):'I could not find that in the archive. Try a type like “ransomware”, “worm”, or “trojan” — every type has a solution profile.';
+};
+fetch('data/addons/index.json').then(function(r){return r.json();}).then(function(j){
+ IDX=j;document.getElementById('docCount').textContent=j.rows.filter(function(r){return r[4]==='documented';}).length;
+ document.getElementById('azSearch').addEventListener('input',function(e){render(e.target.value);});
+ render('');
+ needDetails([['JAH-AV-000029','WannaCry','', '', 'documented',1]],1,function(){
+  var b=document.querySelector('#bestCard [data-dl]');if(b)wireDl(document.getElementById('bestCard'));});
+}).catch(function(){document.getElementById('azList').innerHTML='<p class="note">Archive failed to load.</p>';});
+})();</script>
+"""
+
+AZ_WELCOME = ("<li><b>Search the cures.</b> Every virus gets its own solution add-on — documented families and heuristic profiles.</li>"
+ "<li><b>Apply all.</b> One button prepares the full protection set for your detected system.</li>"
+ "<li><b>Ask the AI.</b> Describe the threat in plain words; it finds the matching solutions.</li>")
+
+# ============================ ASSEMBLY ============================
+import page_bodies as _pb
+from page_bodies import index_body, antivirus_body, addons_body
+from page_bodies import INDEX_WELCOME, AV_WELCOME, AZ_WELCOME
+_pb.OS_JS = OS_JS  # shared OS-detection snippet used by page bodies
+
+def main():
+    n = count()
+    pages = [
+        ("index.html", page("The Signature Antivirus",
+              "Every PC deserves every cure — all solutions to all PC viruses, free downloads, no accounts.",
+              0, index_body(n), INDEX_WELCOME)),
+        ("antivirus.html", page("Get Protected",
+              "Download Signature Shield Basic or Defense-Grade — real tools that detect your OS automatically.",
+              1, antivirus_body(), AV_WELCOME)),
+        ("addons.html", page("1 Million Add-Ons",
+              "A specific solution for every virus — the add-on archive marching to one million.",
+              2, addons_body(n), AZ_WELCOME)),
+    ]
+    for name, html in pages:
+        with open(os.path.join(REPO, name), "w", encoding="utf-8") as f:
+            f.write(html)
+        print("wrote", name, len(html), "bytes")
+    # sitemap
+    sm = ('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+          + "\n".join('  <url><loc>%s/%s</loc></url>' % (BASE, p) for p in
+                       ["", "index.html", "antivirus.html", "addons.html"])
+          + "\n</urlset>\n")
+    open(os.path.join(REPO, "sitemap.xml"), "w").write(sm)
+    # robots
+    open(os.path.join(REPO, "robots.txt"), "w").write(
+        "User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n" % BASE)
+    # api.json
+    api = {"site": "The Signature Antivirus", "title_provisional": True,
+           "url": BASE + "/", "site_number": 32, "site_count": 32,
+           "pages": [{"name": "Main", "url": BASE + "/"},
+                     {"name": "Antivirus", "url": BASE + "/antivirus.html"},
+                     {"name": "1 Million Add-Ons", "url": BASE + "/addons.html"}],
+           "tools": [{"name": "shield_basic.py", "url": BASE + "/tools/shield_basic.py"},
+                     {"name": "shield_defense.py", "url": BASE + "/tools/shield_defense.py"},
+                     {"name": "signatures.json", "url": BASE + "/tools/signatures.json"}],
+           "addons": {"count": n, "goal": 1000000,
+                      "index": BASE + "/data/addons/index.json"}}
+    json.dump(api, open(os.path.join(REPO, "api.json"), "w"), indent=2)
+    # 404
+    open(os.path.join(REPO, "404.html"), "w").write(
+        '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Not found</title></head>'
+        '<body style="background:#070d18;color:#e8edf4;font-family:sans-serif;text-align:center;padding:60px">'
+        '<h1>🛡️ Nothing here.</h1><p><a href="./" style="color:#35d07f">Back to The Signature Antivirus</a></p>'
+        '</body></html>')
+    print("sitemap, robots, api.json, 404.html written; addons =", n)
+
+if __name__ == "__main__":
+    main()

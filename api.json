@@ -1,0 +1,40 @@
+{
+  "site": "The Signature Antivirus",
+  "title_provisional": true,
+  "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/",
+  "site_number": 32,
+  "site_count": 32,
+  "pages": [
+    {
+      "name": "Main",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/"
+    },
+    {
+      "name": "Antivirus",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/antivirus.html"
+    },
+    {
+      "name": "1 Million Add-Ons",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/addons.html"
+    }
+  ],
+  "tools": [
+    {
+      "name": "shield_basic.py",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/tools/shield_basic.py"
+    },
+    {
+      "name": "shield_defense.py",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/tools/shield_defense.py"
+    },
+    {
+      "name": "signatures.json",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/tools/signatures.json"
+    }
+  ],
+  "addons": {
+    "count": 532,
+    "goal": 1000000,
+    "index": "https://justinahiggins614-cmyk.github.io/signature-antivirus/data/addons/index.json"
+  }
+}
