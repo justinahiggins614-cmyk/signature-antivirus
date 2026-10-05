@@ -25,6 +25,10 @@ h1 .sh{font-size:1rem;color:var(--dim);font-weight:400}
 .btn.warn{background:var(--amb);color:#201300}
 .osbanner{background:#0b2233;border:1px solid #2a5a8a;border-radius:12px;padding:14px 16px;margin:14px 0;font-size:1rem;line-height:1.5}
 .osbanner b{color:#7ec8ff}
+.freeforever{background:#0d2a16;border:1px solid var(--grn);border-radius:12px;padding:12px 16px;margin:12px 0;font-size:.95rem;line-height:1.5}
+.freeforever b{color:var(--grn)}
+.card.flagship{border:2px solid var(--grn);box-shadow:0 0 18px rgba(53,208,127,.25)}
+.flagtag{display:inline-block;background:var(--grn);color:#06130b;border-radius:999px;padding:3px 12px;font-size:.72rem;font-weight:800;letter-spacing:.08em;margin:2px 0 8px}
 table.prof{width:100%;border-collapse:collapse;margin:14px 0;font-size:.92rem}
 table.prof th,table.prof td{border:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}
 table.prof th{background:#12203a;color:var(--grn)}
@@ -49,28 +53,46 @@ pre.cmd{background:#050a14;border:1px solid var(--line);border-radius:10px;paddi
 </style></head><body><div class="wrap"><p class="kicker">SITE 32 OF 32 &middot; THE JAH NETWORK</p><header><h1>🛡️ The Signature Antivirus <span class="sh">— every PC deserves every cure</span></h1><nav class="tabs" aria-label="Site pages"><a href="index.html">🏠 Main</a><a href="antivirus.html" class="active">🛡️ Antivirus</a><a href="addons.html">🧩 1 Million Add-Ons</a></nav></header>
 <div class="hero"><h2>Download your protection</h2>
 <p>No accounts. No cloud. No subscriptions. Choose a shield, download it, run it on your PC.
-One universal download detects your system automatically and applies the matching profile.</p></div>
+One universal download detects your system automatically and applies the matching profile.</p>
+<p class="freeforever"><b>Free forever.</b> No accounts, no payments, no upsells, no trial traps —
+every tool is yours. If anything ever goes wrong, uninstalling removes everything cleanly.</p></div>
 <div class="osbanner" id="osBanner2">Detecting your system&hellip;</div>
+<h2>Get running in 3 steps</h2>
 <div class="cards">
-<div class="card"><h3>🛡️ Signature Shield Basic</h3>
-<p><b>The classic suite, Signature-style.</b> SHA-256 signature scanning against the Signature threat database,
-quarantine with one-command restore, scheduled scans, and known-bad filename detection
-(double extensions like <code>invoice.pdf.exe</code>).</p>
-<p class="note">Ships with the industry-standard EICAR test marker in its database, so you can prove
-detection works the day you install it.</p>
-<a class="btn" href="tools/shield_basic.py" download>⬇ Download shield_basic.py</a>
-<a class="btn sec" href="tools/signatures.json" download>⬇ Threat database</a>
-<pre class="cmd">python3 shield_basic.py --self-test   # prove it works
-python3 shield_basic.py scan ~/Downloads --quarantine</pre></div>
-<div class="card"><h3>🛡️⚔️ Signature Shield Defense-Grade</h3>
-<p><b>The advanced arsenal.</b> Behavioral-heuristic scanner, firewall-rules <i>generator</i> for your exact OS,
-USB autorun guard, ransomware honeypot tripwires, boot/auto-start auditor, and network monitor —
-with <code>apply-all</code> running the whole profile in one command.</p>
-<p class="note">The generator writes the rules; <b>you</b> review and apply them. Nothing is changed silently.</p>
-<a class="btn" href="tools/shield_defense.py" download>⬇ Download shield_defense.py</a>
-<pre class="cmd">python3 shield_defense.py --self-test
-python3 shield_defense.py apply-all   # full profile for your OS</pre></div>
+<div class="card"><h3>1 &middot; Download</h3><p>Pick your Shield below — one zip with everything
+inside: the installer, the AI engine, the scanners, the status checker.</p></div>
+<div class="card"><h3>2 &middot; Run the installer</h3><p>Unzip, then <code>python3 install.py</code>.
+It shows every step, asks before touching your system scheduler, and plants the
+ransomware tripwires. Nothing changes silently.</p></div>
+<div class="card"><h3>3 &middot; Protection running</h3><p>The installer ends with
+<b>PROTECTION: RUNNING</b>. Check any time with <code>python3 shield_status.py</code>,
+and meet Shield — your antivirus AI — with <code>python3 shield_ai_defense.py chat</code>.</p></div>
 </div>
+<h2>Choose your Shield</h2>
+<div class="cards">
+<div class="card flagship"><h3>&#x1F916; Signature Shield AI Defense-Grade</h3>
+<p class="flagtag">FLAGSHIP &middot; RECOMMENDED</p>
+<p><b>The AI is the engine.</b> Shield watches your system, detects threats, explains them in
+plain language, and regulates with your supervision — it asks before anything destructive,
+and every action carries an undo.</p>
+<a class="btn" href="downloads/signature-shield-ai.zip" download>&#x2B07; Download the AI Shield</a></div>
+<div class="card"><h3>&#x1F916; Signature Shield AI (Basic)</h3>
+<p>The AI engine with classic-style scanning — signature database, quarantine, scheduled
+scans, all explained conversationally and all reversible.</p>
+<a class="btn" href="downloads/signature-shield-ai-basic.zip" download>&#x2B07; Download AI Basic</a></div>
+<div class="card"><h3>&#x1F6E1;&#xFE0F; Signature Shield Basic</h3>
+<p><b>The classic suite, Signature-style.</b> SHA-256 signature scanning, quarantine with
+one-command restore, scheduled scans, double-extension detection. No AI — just the tools.</p>
+<a class="btn sec" href="downloads/signature-shield-basic.zip" download>&#x2B07; Download Basic</a></div>
+<div class="card"><h3>&#x1F6E1;&#xFE0F;&#x2694;&#xFE0F; Signature Shield Defense-Grade</h3>
+<p><b>The advanced arsenal, classic.</b> Behavioral heuristics, firewall-rules generator,
+USB guard, ransomware tripwires, boot auditor, network monitor. No AI — just the tools.</p>
+<a class="btn sec" href="downloads/signature-shield-defense.zip" download>&#x2B07; Download Defense-Grade</a></div>
+</div>
+<p class="note">Every bundle ships <code>--self-test</code> on every tool, the EICAR test marker
+in the threat database, the fail-safe undo journal, the <b>off switch</b>
+(<code>install.py --off</code> / <code>--on</code>), and the clean <b>uninstaller</b>
+(<code>install.py --uninstall</code>) that proves zero residue.</p>
 <h2>Protection profiles — honest, per system</h2>
 <table class="prof"><tr><th>Your system</th><th>What you get</th><th>Why</th></tr>
 <tr><td><b>Windows</b></td><td>Full suite: signature + heuristic scan, netsh firewall rules, USB autorun guard,
@@ -159,7 +181,7 @@ document.getElementById('tryBtn').onclick=function(){
 <div id="jahWelcome" aria-hidden="true"><div id="jahWelcomeCard" role="dialog" aria-modal="true" aria-label="Welcome">
 <h2>Welcome to The Signature Antivirus</h2>
 <p class="wsub">Every PC deserves every cure. Here is how to use it:</p>
-<ol><li><b>Your system is detected.</b> Windows, macOS, or Linux — the right profile is pre-selected.</li><li><b>Download, don't subscribe.</b> Two real Python tools. They detect your OS at runtime, automatically.</li><li><b>Prove it works.</b> Every tool ships <code>--self-test</code>; the database ships the EICAR test marker.</li></ol>
+<ol><li><b>Your system is detected.</b> Windows, macOS, or Linux — the right profile is pre-selected.</li><li><b>Meet Shield, the AI.</b> The flagship editions put the antivirus AI in charge — it watches, explains, asks before acting, and undoes anything on your word.</li><li><b>Download, don't subscribe.</b> Real tools you run on your own PC. Free forever — no accounts, no payments.</li><li><b>Prove it works.</b> Every tool ships <code>--self-test</code>; the database ships the EICAR test marker; uninstalling proves zero residue.</li></ol>
 <div class="wbtnrow"><button class="btn" id="jahWelcomeOk" type="button">OK &mdash; Got it &#10003;</button>
 <button class="btn" id="jahWelcomeFull" type="button">Full how-to guide</button></div></div></div>
 <div id="jahGuide" aria-hidden="true"><div id="jahGuideCard" role="dialog" aria-modal="true" aria-label="How to use">

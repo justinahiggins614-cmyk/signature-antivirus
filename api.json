@@ -20,6 +20,41 @@
   ],
   "tools": [
     {
+      "name": "install.py",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/tools/install.py",
+      "desc": "Installer: download, run, PROTECTION: RUNNING"
+    },
+    {
+      "name": "shield_ai_defense.py",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/tools/shield_ai_defense.py",
+      "desc": "Signature Shield AI Defense-Grade (flagship)"
+    },
+    {
+      "name": "shield_ai_basic.py",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/tools/shield_ai_basic.py",
+      "desc": "Signature Shield AI (Basic)"
+    },
+    {
+      "name": "shield_ai.py",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/tools/shield_ai.py",
+      "desc": "Shield AI engine"
+    },
+    {
+      "name": "shield_journal.py",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/tools/shield_journal.py",
+      "desc": "Fail-safe action journal + rewind"
+    },
+    {
+      "name": "shield_monitor.py",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/tools/shield_monitor.py",
+      "desc": "Resident monitor"
+    },
+    {
+      "name": "shield_status.py",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/tools/shield_status.py",
+      "desc": "Plain-language protection status"
+    },
+    {
       "name": "shield_basic.py",
       "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/tools/shield_basic.py"
     },
@@ -30,6 +65,24 @@
     {
       "name": "signatures.json",
       "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/tools/signatures.json"
+    }
+  ],
+  "bundles": [
+    {
+      "name": "signature-shield-ai.zip",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/downloads/signature-shield-ai.zip"
+    },
+    {
+      "name": "signature-shield-ai-basic.zip",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/downloads/signature-shield-ai-basic.zip"
+    },
+    {
+      "name": "signature-shield-basic.zip",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/downloads/signature-shield-basic.zip"
+    },
+    {
+      "name": "signature-shield-defense.zip",
+      "url": "https://justinahiggins614-cmyk.github.io/signature-antivirus/downloads/signature-shield-defense.zip"
     }
   ],
   "addons": {

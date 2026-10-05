@@ -13,8 +13,8 @@ real tools, run them on your own machine. No accounts. No cloud. No subscription
 <div class="stats" role="status">
 <div class="stat"><b id="stAddons">""" + str(n) + """</b><span>virus solutions archived</span></div>
 <div class="stat"><b>1,000,000</b><span>march goal</span></div>
-<div class="stat"><b>2</b><span>protection downloads</span></div>
-<div class="stat"><b>100% free</b><span>no accounts, ever</span></div>
+<div class="stat"><b>4</b><span>protection downloads</span></div>
+<div class="stat"><b>100% free</b><span>free forever, no accounts</span></div>
 </div>
 <div class="mission"><b>Our mission statement.</b> Viruses do not care what system you run, and neither do we.
 The Signature Antivirus gives every PC the full set of cures and immunities: a classic-style shield for everyday
@@ -28,8 +28,9 @@ Nothing phones home.</div>
 or <b>Defense-Grade</b> for the full arsenal. The site detects your system and pre-selects the right profile.</p></div>
 <div class="card"><h3>2 &middot; Download</h3><p>Real Python tools — the scanner, the quarantine, the firewall-rule
 generator, the USB guard, the ransomware tripwires. They run on <b>your</b> PC, not in our cloud.</p></div>
-<div class="card"><h3>3 &middot; Run</h3><p><code>python3 shield_basic.py scan ~/Downloads</code> — that is the whole
-signup flow. One universal download detects your OS and applies the matching protection automatically.</p></div>
+<div class="card"><h3>3 &middot; Run</h3><p><code>python3 install.py</code> — that is the whole
+signup flow. The installer sets everything up, starts the resident monitor, and ends with
+<b>PROTECTION: RUNNING</b>. One universal download detects your OS and applies the matching protection automatically.</p></div>
 </div>
 <div class="cards">
 <div class="card"><h3>🛡️ The Antivirus</h3><p>Two downloads: <b>Signature Shield Basic</b> (the classic suite —
@@ -61,28 +62,46 @@ def antivirus_body():
     return """
 <div class="hero"><h2>Download your protection</h2>
 <p>No accounts. No cloud. No subscriptions. Choose a shield, download it, run it on your PC.
-One universal download detects your system automatically and applies the matching profile.</p></div>
+One universal download detects your system automatically and applies the matching profile.</p>
+<p class="freeforever"><b>Free forever.</b> No accounts, no payments, no upsells, no trial traps —
+every tool is yours. If anything ever goes wrong, uninstalling removes everything cleanly.</p></div>
 <div class="osbanner" id="osBanner2">Detecting your system&hellip;</div>
+<h2>Get running in 3 steps</h2>
 <div class="cards">
-<div class="card"><h3>🛡️ Signature Shield Basic</h3>
-<p><b>The classic suite, Signature-style.</b> SHA-256 signature scanning against the Signature threat database,
-quarantine with one-command restore, scheduled scans, and known-bad filename detection
-(double extensions like <code>invoice.pdf.exe</code>).</p>
-<p class="note">Ships with the industry-standard EICAR test marker in its database, so you can prove
-detection works the day you install it.</p>
-<a class="btn" href="tools/shield_basic.py" download>⬇ Download shield_basic.py</a>
-<a class="btn sec" href="tools/signatures.json" download>⬇ Threat database</a>
-<pre class="cmd">python3 shield_basic.py --self-test   # prove it works
-python3 shield_basic.py scan ~/Downloads --quarantine</pre></div>
-<div class="card"><h3>🛡️⚔️ Signature Shield Defense-Grade</h3>
-<p><b>The advanced arsenal.</b> Behavioral-heuristic scanner, firewall-rules <i>generator</i> for your exact OS,
-USB autorun guard, ransomware honeypot tripwires, boot/auto-start auditor, and network monitor —
-with <code>apply-all</code> running the whole profile in one command.</p>
-<p class="note">The generator writes the rules; <b>you</b> review and apply them. Nothing is changed silently.</p>
-<a class="btn" href="tools/shield_defense.py" download>⬇ Download shield_defense.py</a>
-<pre class="cmd">python3 shield_defense.py --self-test
-python3 shield_defense.py apply-all   # full profile for your OS</pre></div>
+<div class="card"><h3>1 &middot; Download</h3><p>Pick your Shield below — one zip with everything
+inside: the installer, the AI engine, the scanners, the status checker.</p></div>
+<div class="card"><h3>2 &middot; Run the installer</h3><p>Unzip, then <code>python3 install.py</code>.
+It shows every step, asks before touching your system scheduler, and plants the
+ransomware tripwires. Nothing changes silently.</p></div>
+<div class="card"><h3>3 &middot; Protection running</h3><p>The installer ends with
+<b>PROTECTION: RUNNING</b>. Check any time with <code>python3 shield_status.py</code>,
+and meet Shield — your antivirus AI — with <code>python3 shield_ai_defense.py chat</code>.</p></div>
 </div>
+<h2>Choose your Shield</h2>
+<div class="cards">
+<div class="card flagship"><h3>&#x1F916; Signature Shield AI Defense-Grade</h3>
+<p class="flagtag">FLAGSHIP &middot; RECOMMENDED</p>
+<p><b>The AI is the engine.</b> Shield watches your system, detects threats, explains them in
+plain language, and regulates with your supervision — it asks before anything destructive,
+and every action carries an undo.</p>
+<a class="btn" href="downloads/signature-shield-ai.zip" download>&#x2B07; Download the AI Shield</a></div>
+<div class="card"><h3>&#x1F916; Signature Shield AI (Basic)</h3>
+<p>The AI engine with classic-style scanning — signature database, quarantine, scheduled
+scans, all explained conversationally and all reversible.</p>
+<a class="btn" href="downloads/signature-shield-ai-basic.zip" download>&#x2B07; Download AI Basic</a></div>
+<div class="card"><h3>&#x1F6E1;&#xFE0F; Signature Shield Basic</h3>
+<p><b>The classic suite, Signature-style.</b> SHA-256 signature scanning, quarantine with
+one-command restore, scheduled scans, double-extension detection. No AI — just the tools.</p>
+<a class="btn sec" href="downloads/signature-shield-basic.zip" download>&#x2B07; Download Basic</a></div>
+<div class="card"><h3>&#x1F6E1;&#xFE0F;&#x2694;&#xFE0F; Signature Shield Defense-Grade</h3>
+<p><b>The advanced arsenal, classic.</b> Behavioral heuristics, firewall-rules generator,
+USB guard, ransomware tripwires, boot auditor, network monitor. No AI — just the tools.</p>
+<a class="btn sec" href="downloads/signature-shield-defense.zip" download>&#x2B07; Download Defense-Grade</a></div>
+</div>
+<p class="note">Every bundle ships <code>--self-test</code> on every tool, the EICAR test marker
+in the threat database, the fail-safe undo journal, the <b>off switch</b>
+(<code>install.py --off</code> / <code>--on</code>), and the clean <b>uninstaller</b>
+(<code>install.py --uninstall</code>) that proves zero residue.</p>
 <h2>Protection profiles — honest, per system</h2>
 <table class="prof"><tr><th>Your system</th><th>What you get</th><th>Why</th></tr>
 <tr><td><b>Windows</b></td><td>Full suite: signature + heuristic scan, netsh firewall rules, USB autorun guard,
@@ -122,14 +141,16 @@ document.getElementById('tryBtn').onclick=function(){
 """
 
 AV_WELCOME = ("<li><b>Your system is detected.</b> Windows, macOS, or Linux — the right profile is pre-selected.</li>"
- "<li><b>Download, don't subscribe.</b> Two real Python tools. They detect your OS at runtime, automatically.</li>"
- "<li><b>Prove it works.</b> Every tool ships <code>--self-test</code>; the database ships the EICAR test marker.</li>")
+ "<li><b>Meet Shield, the AI.</b> The flagship editions put the antivirus AI in charge — it watches, explains, asks before acting, and undoes anything on your word.</li>"
+ "<li><b>Download, don't subscribe.</b> Real tools you run on your own PC. Free forever — no accounts, no payments.</li>"
+ "<li><b>Prove it works.</b> Every tool ships <code>--self-test</code>; the database ships the EICAR test marker; uninstalling proves zero residue.</li>")
 
 def addons_body(n):
     return """
 <div class="hero"><h2>The 1 Million Add-On Archive</h2>
 <p>A specific solution for <b>every virus</b> &mdash; documented historic families plus heuristic defense profiles,
-marching to one million. Search for a threat, open its cure, or press <b>Apply all</b>.</p></div>
+marching to one million. Search for a threat, open its cure, or press <b>Apply all</b>.</p>
+<p class="freeforever"><b>Free forever.</b> Every solution, every tool — no accounts, no payments, no upsells.</p></div>
 <div class="stats" role="status">
 <div class="stat"><b id="azCount">""" + str(n) + """</b><span>solutions archived</span></div>
 <div class="stat"><b>1,000,000</b><span>march goal</span></div>

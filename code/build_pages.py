@@ -38,7 +38,7 @@ h1 .sh{font-size:1rem;color:var(--dim);font-weight:400}
 .btn.sec{background:transparent;color:var(--grn);border:2px solid var(--grn)}
 .btn.warn{background:var(--amb);color:#201300}
 .osbanner{background:#0b2233;border:1px solid #2a5a8a;border-radius:12px;padding:14px 16px;margin:14px 0;font-size:1rem;line-height:1.5}
-.osbanner b{color:#7ec8ff}
+.osbanner b{color:#7ec8ff}\n.freeforever{background:#0d2a16;border:1px solid var(--grn);border-radius:12px;padding:12px 16px;margin:12px 0;font-size:.95rem;line-height:1.5}\n.freeforever b{color:var(--grn)}\n.card.flagship{border:2px solid var(--grn);box-shadow:0 0 18px rgba(53,208,127,.25)}\n.flagtag{display:inline-block;background:var(--grn);color:#06130b;border-radius:999px;padding:3px 12px;font-size:.72rem;font-weight:800;letter-spacing:.08em;margin:2px 0 8px}
 table.prof{width:100%;border-collapse:collapse;margin:14px 0;font-size:.92rem}
 table.prof th,table.prof td{border:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}
 table.prof th{background:#12203a;color:var(--grn)}
@@ -282,6 +282,12 @@ _pb.OS_JS = OS_JS  # shared OS-detection snippet used by page bodies
 
 def main():
     n = count()
+    # fresh download bundles (real zips of the real tools)
+    try:
+        import make_bundles
+        make_bundles.main()
+    except Exception as e:
+        print("bundle build note:", e)
     pages = [
         ("index.html", page("The Signature Antivirus",
               "Every PC deserves every cure — all solutions to all PC viruses, free downloads, no accounts.",
@@ -312,9 +318,31 @@ def main():
            "pages": [{"name": "Main", "url": BASE + "/"},
                      {"name": "Antivirus", "url": BASE + "/antivirus.html"},
                      {"name": "1 Million Add-Ons", "url": BASE + "/addons.html"}],
-           "tools": [{"name": "shield_basic.py", "url": BASE + "/tools/shield_basic.py"},
+           "tools": [{"name": "install.py", "url": BASE + "/tools/install.py",
+                      "desc": "Installer: download, run, PROTECTION: RUNNING"},
+                     {"name": "shield_ai_defense.py", "url": BASE + "/tools/shield_ai_defense.py",
+                      "desc": "Signature Shield AI Defense-Grade (flagship)"},
+                     {"name": "shield_ai_basic.py", "url": BASE + "/tools/shield_ai_basic.py",
+                      "desc": "Signature Shield AI (Basic)"},
+                     {"name": "shield_ai.py", "url": BASE + "/tools/shield_ai.py",
+                      "desc": "Shield AI engine"},
+                     {"name": "shield_journal.py", "url": BASE + "/tools/shield_journal.py",
+                      "desc": "Fail-safe action journal + rewind"},
+                     {"name": "shield_monitor.py", "url": BASE + "/tools/shield_monitor.py",
+                      "desc": "Resident monitor"},
+                     {"name": "shield_status.py", "url": BASE + "/tools/shield_status.py",
+                      "desc": "Plain-language protection status"},
+                     {"name": "shield_basic.py", "url": BASE + "/tools/shield_basic.py"},
                      {"name": "shield_defense.py", "url": BASE + "/tools/shield_defense.py"},
                      {"name": "signatures.json", "url": BASE + "/tools/signatures.json"}],
+           "bundles": [{"name": "signature-shield-ai.zip",
+                        "url": BASE + "/downloads/signature-shield-ai.zip"},
+                       {"name": "signature-shield-ai-basic.zip",
+                        "url": BASE + "/downloads/signature-shield-ai-basic.zip"},
+                       {"name": "signature-shield-basic.zip",
+                        "url": BASE + "/downloads/signature-shield-basic.zip"},
+                       {"name": "signature-shield-defense.zip",
+                        "url": BASE + "/downloads/signature-shield-defense.zip"}],
            "addons": {"count": n, "goal": 1000000,
                       "index": BASE + "/data/addons/index.json"}}
     json.dump(api, open(os.path.join(REPO, "api.json"), "w"), indent=2)
