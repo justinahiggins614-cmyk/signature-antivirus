@@ -8,11 +8,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
 BASE = "https://justinahiggins614-cmyk.github.io/signature-antivirus"
 
-_NAV_TMP = "/tmp/nav32_base.html"
 _NAV_REPO = os.path.join(HERE, "nav32_base.html")
-NAV = open(_NAV_TMP if os.path.exists(_NAV_TMP) else _NAV_REPO).read().strip()
+# NOTE: no /tmp dependency — /tmp is wiped without warning on this VM, which once
+# shipped pages with an empty network nav. The canonical base lives in the repo.
+NAV = open(_NAV_REPO).read().strip()
 NAV = NAV.replace("</div>",
-                  '<span class="here">32 The Signature Antivirus &mdash; YOU ARE HERE</span></div>')
+                  '<br><span class="here">30 The Signature Antivirus &mdash; YOU ARE HERE</span></div>')
 
 CSS = """
 :root{--grn:#35d07f;--amb:#f5a623;--red:#ff5d5d;--panel:#0e1626;--line:#22314d;--txt:#e8edf4;--dim:#93a3c0}
@@ -87,9 +88,9 @@ var PROFILES={
 };
 """
 
-_WELCOME_TMP = "/tmp/welcome_block.html"
 _WELCOME_REPO = os.path.join(HERE, "welcome_block.html")
-WELCOME_CSS = open(_WELCOME_TMP if os.path.exists(_WELCOME_TMP) else _WELCOME_REPO).read()
+# NOTE: repo file only — /tmp is wiped without warning on this VM.
+WELCOME_CSS = open(_WELCOME_REPO).read()
 WELCOME_CSS = WELCOME_CSS[WELCOME_CSS.find("<style>"):WELCOME_CSS.find("</style>") + 8]
 
 
@@ -147,17 +148,20 @@ def page(title, desc, tab, body, welcome_items):
             + ('<a href="scan.html"' + (' class="active"' if tab == 3 else '') + '>🔎 Free Scan</a>')
             + ('<a href="addons.html"' + (' class="active"' if tab == 2 else '') + '>🧩 1 Million Add-Ons</a>'))
     canon = {0: "index.html", 1: "antivirus.html", 2: "addons.html", 3: "scan.html"}[tab]
+    # Standing rule: the JAH Network website list appears ONLY at the bottom of the
+    # front door (index.html) — never on other pages.
+    nav_html = ("<nav class=\"jahnet\" aria-label=\"JAH Network\">" + NAV + "</nav>") if tab == 0 else ""
     return ("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">"
             "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
             "<title>" + title + " — The Signature Antivirus</title>"
             "<meta name=\"description\" content=\"" + desc + "\">"
             "<link rel=\"canonical\" href=\"" + BASE + "/" + canon + "\">"
             "<style>" + CSS + "</style></head><body><div class=\"wrap\">"
-            "<p class=\"kicker\">SITE 32 OF 35 &middot; THE JAH NETWORK</p>"
+            "<p class=\"kicker\">SITE 30 OF 37 &middot; THE JAH NETWORK</p>"
             "<header><h1>🛡️ The Signature Antivirus <span class=\"sh\">— every PC deserves every cure</span></h1>"
             "<nav class=\"tabs\" aria-label=\"Site pages\">" + tabs + "</nav></header>"
             + body +
-            "<nav class=\"jahnet\" aria-label=\"JAH Network\">" + NAV + "</nav>"
+            nav_html +
             "<footer>The Signature Antivirus · all tools are real downloads that run on your own PC — "
             "no accounts, no cloud, no subscriptions · virus facts are public record</footer>"
             "</div>" + welcome_block(welcome_items) + "</body></html>")
@@ -323,7 +327,7 @@ def main():
         "User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n" % BASE)
     # api.json
     api = {"site": "The Signature Antivirus", "title_provisional": True,
-           "url": BASE + "/", "site_number": 32, "site_count": 35,
+           "url": BASE + "/", "site_number": 30, "site_count": 37,
            "pages": [{"name": "Main", "url": BASE + "/"},
                      {"name": "Antivirus", "url": BASE + "/antivirus.html"},
                      {"name": "Free Scan", "url": BASE + "/scan.html"},
