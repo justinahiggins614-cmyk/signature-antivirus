@@ -157,7 +157,7 @@ def page(title, desc, tab, body, welcome_items):
             "<meta name=\"description\" content=\"" + desc + "\">"
             "<link rel=\"canonical\" href=\"" + BASE + "/" + canon + "\">"
             "<style>" + CSS + "</style></head><body><div class=\"wrap\">"
-            "<p class=\"kicker\">SITE 30 OF 37 &middot; THE JAH NETWORK</p>"
+            "<p class=\"kicker\">SITE 30 OF 39 &middot; THE JAH NETWORK</p>"
             "<header><h1>🛡️ The Signature Antivirus <span class=\"sh\">— every PC deserves every cure</span></h1>"
             "<nav class=\"tabs\" aria-label=\"Site pages\">" + tabs + "</nav></header>"
             + body +
